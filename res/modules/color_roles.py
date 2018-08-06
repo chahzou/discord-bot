@@ -4,6 +4,9 @@ from ..module import Module
 
 class ColorRoles(Module):
 
+    async def run(self):
+        pass
+
     # Gives the author of the command a role with the given color
     async def set_color(self, message=None):
 

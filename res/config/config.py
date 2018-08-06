@@ -1,6 +1,6 @@
 # Configuration
 general = {
-    'cmd_ident': '.',
+    'cmd_ident': '!',
     'def_channel_id': '',
 }
 
@@ -9,12 +9,10 @@ modules = [
 ]
 
 # Dictionaries of commands and associated module
-cmd_mod = {
+cmd_mod_assoc = {
     'test':     'test',
-    'help':     'help_command',
-    'delete':   'delete',
-    'color':    'set_color',
-    'count-down':   'count_down',
+    'help':     'help',
+    'color':    'color',
 }
 
 
