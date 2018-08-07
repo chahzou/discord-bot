@@ -25,7 +25,7 @@ __all__ = [ basename(f)[:-3] for f in modules if isfile(f) and not f.endswith('_
 class Bot(discord.Client):
 
     async def on_ready(self):
-        
+
         self.util = Utility(self)
         self.config = config
         await self.load_modules()
@@ -37,9 +37,11 @@ class Bot(discord.Client):
     # Initializes modules
     async def load_modules(self):
         self.test = Test(self)
+        self.help = Help(self)
         self.color_roles = ColorRoles(self)
 
 
+    # Runs "run" method in specified module of command (See command <-> module association in config)
     async def on_message(self, message):
 
         cmd = message.content
@@ -49,15 +51,21 @@ class Bot(discord.Client):
             executed = False
 
             # Get first command without identifier
-            cmd_mod = await self.util.get_content_part(cmd, 1, 1)
-
-            # TODO: Match commands to modules
-            if cmd_mod in config.cmd_mod_assoc:       # If config contains module
-                await getattr(self, '%s' % config.cmd_mod_assoc[cmd_mod]).run(message)
+            mod_cmd = await self.util.get_content_part(cmd, 1, 1)
+            
+            # Matches commands to modules
+            if mod_cmd in config.cmd_mod_assoc:       # If config contains module
+                await self.call_module_function(mod_cmd, 'run', message)
                 executed = True
 
             # Sends an error message if command is not in cmdList
-            if not executed or not cmd_mod:
-                await self.util.error_message(message.channel, "No module for \'" + cmd_mod + "\' was found.")
+            if not executed or not mod_cmd:
+                await self.util.error_message(message.channel, "No module for \'" + mod_cmd + "\' was found or configured.")
 
         # elif: Actions for non-command messages
+
+
+    async def call_module_function(self, mod_cmd, function, message):
+
+        if self.config.cmd_mod_assoc[mod_cmd]:
+            await getattr(getattr(self, '%s' % config.cmd_mod_assoc[mod_cmd]), function)(message)
