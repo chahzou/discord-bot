@@ -13,6 +13,7 @@ arg_mod_assoc = {
     'info':     'info',
     'help':     'help',
     'test':     'test',
+    'mng':      'administration',
     'color':    'color',
 }
 

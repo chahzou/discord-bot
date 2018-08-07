@@ -5,6 +5,7 @@ from .config import config
 
 from .modules.info import Info
 from .modules.test import Test
+from .modules.administration import Administration
 from .modules.help import Help
 from .modules.color_roles import ColorRoles
 
@@ -38,6 +39,7 @@ class Bot(discord.Client):
     async def load_modules(self):
         self.info = Info(self)
         self.test = Test(self)
+        self.mgmt = Administration(self)
         self.help = Help(self)
         self.util = Utility(self)
         self.color_roles = ColorRoles(self)
