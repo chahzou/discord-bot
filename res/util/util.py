@@ -5,7 +5,7 @@ class Utility:
 
 
     async def is_command(self, msg_content):
-        if msg_content.startswith(self.bot.config.general['cmd_ident']):
+        if msg_content.startswith(self.bot.config.general['cmd_op']):
             return True
 
 
@@ -13,7 +13,7 @@ class Utility:
     async def get_content_part(self, content, part_num, max_parts=100):
 
         # remove command letter
-        content = content[len(self.bot.config.general['cmd_ident']):]
+        content = content[len(self.bot.config.general['cmd_op']):]
 
         # split message at the next spaces in maximum maxS+1 parts
         parts = content.split(' ', max_parts)
