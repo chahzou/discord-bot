@@ -7,6 +7,8 @@ class ColorRoles(Module):
     async def run(self):
         pass
 
+    # TODO: Change get_content_part to args
+    
     # Gives the author of the command a role with the given color
     async def set_color(self, message=None):
 

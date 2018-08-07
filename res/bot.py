@@ -39,37 +39,39 @@ class Bot(discord.Client):
         self.info = Info(self)
         self.test = Test(self)
         self.help = Help(self)
+        self.util = Utility(self)
         self.color_roles = ColorRoles(self)
 
 
     # Runs "run" method in specified module of command (See command <-> module association in config)
     async def on_message(self, message):
 
-        cmd = message.content
-
-        if await self.util.is_command(cmd):
+        if await self.util.is_command(message.content):
 
             executed = False
 
-            # Get first command without identifier
-            mod_arg = await self.util.get_content_part(cmd, 1, 1)
+            # Remove operator
+            cmd = message.content[len(self.config.general['cmd_op']):]
+
+            # Get argument list
+            args = await self.util.return_args(cmd)
             
-            # Matches commands to modules
-            if mod_arg in config.arg_mod_assoc:       # If config contains module
-                await self.call_module_function(mod_arg, 'run', message)
+            # Call module specified by first argument
+            if args[0] in config.arg_mod_assoc:       # If config contains module
+                await self.call_module_function('run', args, message)
                 executed = True
 
             # Sends an error message if command is not in cmdList
-            if not executed or not mod_arg:
-                await self.util.error_message(message.channel, "No module for \'" + mod_arg + "\' was found or configured.")
+            if not executed or not args[0]:
+                await self.util.error_message(message.channel, "No module for \'" + args[0] + "\' was found or configured.")
 
         # elif: Actions for non-command messages
 
 
-    async def call_module_function(self, mod_arg, function, message=None):
+    async def call_module_function(self, function, args=None, message=None):
 
-        if self.config.arg_mod_assoc[mod_arg]:
-            if message:
-                return await getattr(getattr(self, '%s' % config.arg_mod_assoc[mod_arg]), function)(message)
-            else:
-                return await getattr(getattr(self, '%s' % config.arg_mod_assoc[mod_arg]), function)()
+        if args and message:
+            if self.config.arg_mod_assoc[args[0]]:
+                return await getattr(getattr(self, '%s' % config.arg_mod_assoc[args[0]]), function)(args, message)
+        else:
+            return await getattr(getattr(self, '%s' % config.arg_mod_assoc[args[0]]), function)()

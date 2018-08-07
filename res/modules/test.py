@@ -12,19 +12,18 @@ class Test(Module):
 
 
     # Performs different tests depending on argument
-    async def run(self, message):
+    async def run(self, args, message):
 
-        if message.content:
-            arg = await self.util.get_content_part(message.content, 2, 1)
+        if len(args) >= 2:
 
-            if arg == 'sleep':
+            if args[1] == 'sleep':
                 await asyncio.sleep(5)
                 await self.bot.send_message(message.channel, 'Done sleeping :O')
-            elif arg == 'error':
-                await self.util.error_message(message.channel, "Test-Error")
+            elif args[1] == 'error':
+                await self.bot.util.error_message(message.channel, "Test-Error")
                 
             # Add other test options here
 
-            else:
-                await self.bot.send_message(message.channel, "It worked.")
+        else:
+            await self.bot.send_message(message.channel, "It worked.")
 

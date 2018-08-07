@@ -9,27 +9,19 @@ class Utility:
             return True
 
 
-    # Returns the n'th part seperated by spaces in content
-    async def get_content_part(self, content, part_num, max_parts=100):
+    # Returns list of space-seperated arguments in string
+    async def return_args(self, string):
+        return string.split(' ', self.bot.config.other['max_args'])
 
-        # remove command letter
-        content = content[len(self.bot.config.general['cmd_op']):]
-
-        # split message at the next spaces in maximum maxS+1 parts
-        parts = content.split(' ', max_parts)
-
-        # check if message has enough parts to return requested part
-        if len(parts) >= part_num:
-            return parts[part_num - 1]
-        else:
-            return None
     
+
     # Send info message
     async def info_message(self, channel, content):
         await self.bot.send_message(
             channel,
             "Info: " + content
         )
+
 
     # Sends an error message
     async def error_message(self, channel, content):
@@ -38,8 +30,18 @@ class Utility:
             "Error: " + content + "\nType `!help [command]` to list all possible commands or add a command to get more information."
         )
 
+
+    # Returns module name associated with argument in config
+    async def return_mod_for_arg(self, arg):
+        return self.bot.config.arg_mod_assoc[arg]
+
+
+    async def send_help_message(self, mod_arg):
+        await self.bot.call_module_function('run', ['help', mod_arg])
+
+
     # Sends different help messages depending on second argument
-    async def help_message(self, channel, cmd=None):
+    '''async def help_message(self, channel, cmd=None):
 
         out = ""
 
@@ -70,4 +72,4 @@ class Utility:
         else:
             out += "Command `!" + cmd + "` does not exist."
 
-        await self.bot.send_message(channel, out)
+        await self.bot.send_message(channel, out)'''
