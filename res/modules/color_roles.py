@@ -83,3 +83,6 @@ class ColorRoles(Module):
 
                     if used is False:
                         await self.client.delete_role(message.server, role)      # delete the role if it's not used
+    
+    async def return_help(self):
+        pass

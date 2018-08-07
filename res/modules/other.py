@@ -106,3 +106,4 @@ class Other(Module):
 
             else:
                 await help_message(message.channel, 'count-down')
+    

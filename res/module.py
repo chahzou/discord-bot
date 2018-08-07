@@ -10,3 +10,7 @@ class Module(ABC):
     @abstractmethod
     def run(self):
         pass
+
+    @abstractmethod
+    def return_help(self):
+        pass

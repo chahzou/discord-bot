@@ -5,8 +5,14 @@ from ..module import Module
 
 class Test(Module):
     
+    async def return_help(self):
+        return ("`test`: Return test message."
+        "\n`test sleep`: Sleep for 5 seconds, then return test message."
+        "\n`test error`: Return a test-error.")
+
+
     # Performs different tests depending on argument
-    async def run(self, message=None):
+    async def run(self, message):
 
         if message.content:
             arg = await self.util.get_content_part(message.content, 2, 1)
@@ -16,12 +22,9 @@ class Test(Module):
                 await self.bot.send_message(message.channel, 'Done sleeping :O')
             elif arg == 'error':
                 await self.util.error_message(message.channel, "Test-Error")
-            elif arg == 'role-order':
-                for role in message.server.roles:
-                    print(role.name, role.position)
-                await self.bot.send_message(message.channel, 'Printed the roles on the console.')
-
+                
             # Add other test options here
 
             else:
                 await self.bot.send_message(message.channel, "It worked.")
+
