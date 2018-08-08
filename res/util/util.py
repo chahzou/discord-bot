@@ -1,3 +1,5 @@
+import re
+
 class Utility:
     
     def __init__(self, bot):
@@ -40,6 +42,9 @@ class Utility:
         await self.bot.call_module_function('run', ['help', mod_arg])
 
 
+    async def convert_camelcase_to_underscore(self, name):
+        s1 = re.sub('(.)([A-Z][a-z]+)', r'\1_\2', name)
+        return re.sub('([a-z0-9])([A-Z])', r'\1_\2', s1).lower()
 
     # Sends different help messages depending on second argument
     '''async def help_message(self, channel, cmd=None):
