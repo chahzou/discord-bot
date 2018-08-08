@@ -36,8 +36,9 @@ class Utility:
         return self.bot.config.arg_mod_assoc[arg]
 
 
-    async def send_help_message(self, mod_arg):
+    async def call_module_help(self, mod_arg):
         await self.bot.call_module_function('run', ['help', mod_arg])
+
 
 
     # Sends different help messages depending on second argument

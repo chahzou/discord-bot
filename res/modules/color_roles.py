@@ -87,5 +87,5 @@ class ColorRoles(Module):
                         await self.bot.delete_role(message.server, role)      # delete the role if it's not used
     
 
-    async def return_help(self):
+    async def return_help(self, args):
         return "Use `color [hex-code]` to set your username color, for example #123456."

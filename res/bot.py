@@ -70,10 +70,11 @@ class Bot(discord.Client):
         # elif: Actions for non-command messages
 
 
-    async def call_module_function(self, function, args=None, message=None):
+    async def call_module_function(self, function, args, message=None):
 
-        if args and message:
-            if self.config.arg_mod_assoc[args[0]]:
+        print(args)
+        if self.config.arg_mod_assoc[args[0]]:
+            if message:
                 return await getattr(getattr(self, '%s' % config.arg_mod_assoc[args[0]]), function)(args, message)
-        else:
-            return await getattr(getattr(self, '%s' % config.arg_mod_assoc[args[0]]), function)()
+            else:
+                return await getattr(getattr(self, '%s' % config.arg_mod_assoc[args[0]]), function)(args)

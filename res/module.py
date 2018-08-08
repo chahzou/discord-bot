@@ -1,5 +1,7 @@
 from abc import ABC, abstractmethod
+
 from .util.util import Utility
+
 
 class Module(ABC):
 
@@ -7,9 +9,9 @@ class Module(ABC):
         self.bot = bot
 
     @abstractmethod
-    def run(self):
+    def run(self, args, message=None):
         pass
 
     @abstractmethod
-    def return_help(self):
+    def return_help(self, args):
         pass

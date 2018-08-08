@@ -1,11 +1,11 @@
-import re, asyncio, discord
+import asyncio
 
 from ..module import Module
 
 
 class Test(Module):
     
-    async def return_help(self):
+    async def return_help(self, args):
         return ("`test`: Return test message."
         "\n`test sleep`: Sleep for 5 seconds, then return test message."
         "\n`test error`: Return a test-error.")

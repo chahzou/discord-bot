@@ -3,22 +3,19 @@ from ..module import Module
 class Help(Module):
     
     async def run(self, args, message=None):
-        mod_arg = None
-        if len(args) >= 2:
-            mod_arg = args[1]
-        await self.send_help(mod_arg, message)
+        await self.send_help(args, message)
 
 
     # Send help message, optionally for module
-    async def send_help(self, mod_arg=None, message=None):
+    async def send_help(self, args, message=None):
 
         help_str = ""
 
         # Create help for specific module
-        if mod_arg:
-            mod_help_str = await self.bot.call_module_function('return_help', [mod_arg])
+        if args[1]:
+            mod_help_str = await self.bot.call_module_function('return_help', args)
             if isinstance(mod_help_str, str):
-                help_str += "Help for `" + mod_arg + "`:\n" + mod_help_str
+                help_str += "Help for `" + args[1] + "`:\n" + mod_help_str
             else:
                 self.bot.util.error_message(message.channel, "Module-Error: Module method 'return_help' didn't return a string.")
         
