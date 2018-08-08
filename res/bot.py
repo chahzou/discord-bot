@@ -29,19 +29,19 @@ class Bot(discord.Client):
 
         self.util = Utility(self)
         self.config = config
+
         await self.load_modules()
 
         print('Logged in as {0}'.format(self.user))
-        # await client.send_message(client.get_channel(defChannelID), '')
+        await self.send_message(self.get_channel(self.config.general['def_channel_id'])), self.config.general['name'] + " is online.")
 
 
     # Initializes modules
     async def load_modules(self):
         self.info = Info(self)
         self.test = Test(self)
-        self.mgmt = Administration(self)
+        self.administration = Administration(self)
         self.help = Help(self)
-        self.util = Utility(self)
         self.color_roles = ColorRoles(self)
 
 
@@ -56,10 +56,10 @@ class Bot(discord.Client):
             cmd = message.content[len(self.config.general['cmd_op']):]
 
             # Get argument list
-            args = await self.util.return_args(cmd)
+            args = await self.util.split_cmd_to_args_list(cmd)
             
             # Call module specified by first argument
-            if args[0] in config.arg_mod_assoc:       # If config contains module
+            if args[0] in config.arg_mod_assoc.keys():       # If config contains module
                 await self.call_module_function('run', args, message)
                 executed = True
 

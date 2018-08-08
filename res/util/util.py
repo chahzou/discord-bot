@@ -10,7 +10,7 @@ class Utility:
 
 
     # Returns list of space-seperated arguments in string
-    async def return_args(self, string):
+    async def split_cmd_to_args_list(self, string):
         return string.split(' ', self.bot.config.other['max_args'])
 
     
