@@ -22,14 +22,14 @@ class Help(Module):
         # Create general help
         else:
             mod_args_str = ''
-            for arg in self.bot.config.arg_mod_assoc.values():
+            for arg in self.bot.cfg.arg_mod_assoc.values():
                 if not mod_args_str:
                     mod_args_str += "`" + arg + "`"
                 else:
                     mod_args_str += ", `" + arg + "`"
 
             help_str += ("The following modules can currently be accessed: " + mod_args_str + "\nUse `" 
-                + self.bot.config.general['cmd_op'] + "help [module]` for more information on each module.")
+                + self.bot.cfg.general['cmd_op'] + "help [module]` for more information on each module.")
 
         # Send help message
         await self.bot.send_message(message.channel, help_str)

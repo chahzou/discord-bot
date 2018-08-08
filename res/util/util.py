@@ -5,13 +5,13 @@ class Utility:
 
 
     async def is_command(self, msg_content):
-        if msg_content.startswith(self.bot.config.general['cmd_op']):
+        if msg_content.startswith(self.bot.cfg.general['cmd_op']):
             return True
 
 
     # Returns list of space-seperated arguments in string
     async def split_cmd_to_args_list(self, string):
-        return string.split(' ', self.bot.config.other['max_args'])
+        return string.split(' ', self.bot.cfg.other['max_args'])
 
     
 
@@ -31,9 +31,9 @@ class Utility:
         )
 
 
-    # Returns module name associated with argument in config
+    # Returns module name associated with argument in cfg
     async def return_mod_for_arg(self, arg):
-        return self.bot.config.arg_mod_assoc[arg]
+        return self.bot.cfg.arg_mod_assoc[arg]
 
 
     async def call_module_help(self, mod_arg):
@@ -51,21 +51,21 @@ class Utility:
             out += "Help menu: List of all possible commands: \n"
 
             counter = 0
-            for key in self.bot.config.cmd_fct.keys():               # Iteration through all keys, adding them to output string
+            for key in self.bot.cfg.cmd_fct.keys():               # Iteration through all keys, adding them to output string
                 out += "`!" + key + "`"
-                if counter < len(self.bot.config.cmd_fct) - 1:         # Adds comma when not last element
+                if counter < len(self.bot.cfg.cmd_fct) - 1:         # Adds comma when not last element
                     out += ", "
                 counter += 1
 
             out += "\nSpecify by typing `!help [command]`."
 
         # displays help for specific command if it is in cmd_list
-        elif cmd in self.bot.config.cmd_fct:
+        elif cmd in self.bot.cfg.cmd_fct:
 
-            if cmd in self.bot.config.cmd_info:
-                if self.bot.config.cmd_info[cmd] is not None and self.bot.config.cmd_info[cmd] != '':
+            if cmd in self.bot.cfg.cmd_info:
+                if self.bot.cfg.cmd_info[cmd] is not None and self.bot.cfg.cmd_info[cmd] != '':
                     out += "Help menu for `!" + cmd + "`:\n"
-                    out += self.bot.config.cmd_info[cmd] + "\n"
+                    out += self.bot.cfg.cmd_info[cmd] + "\n"
             else:
                 out += "Help menu for `!" + cmd + "`:\nSorry, there's no help available for this command yet."
 

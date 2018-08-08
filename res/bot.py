@@ -28,12 +28,12 @@ class Bot(discord.Client):
     async def on_ready(self):
 
         self.util = Utility(self)
-        self.config = config
+        self.cfg = config
 
         await self.load_modules()
 
         print('Logged in as {0}'.format(self.user))
-        await self.send_message(self.get_channel(self.config.general['def_channel_id'])), self.config.general['name'] + " is online.")
+        await self.send_message(self.get_channel(self.cfg.general['def_channel_id']), self.cfg.general['name'] + " is online.")
 
 
     # Initializes modules
@@ -53,13 +53,13 @@ class Bot(discord.Client):
             executed = False
 
             # Remove operator
-            cmd = message.content[len(self.config.general['cmd_op']):]
+            cmd = message.content[len(self.cfg.general['cmd_op']):]
 
             # Get argument list
             args = await self.util.split_cmd_to_args_list(cmd)
             
             # Call module specified by first argument
-            if args[0] in config.arg_mod_assoc.keys():       # If config contains module
+            if args[0] in cfg.arg_mod_assoc.keys():       # If config contains module
                 await self.call_module_function('run', args, message)
                 executed = True
 
@@ -73,8 +73,8 @@ class Bot(discord.Client):
     async def call_module_function(self, function, args, message=None):
 
         print(args)
-        if self.config.arg_mod_assoc[args[0]]:
+        if isinstance([args[0], string) and self.cfg.arg_mod_assoc[args[0]]:
             if message:
-                return await getattr(getattr(self, '%s' % config.arg_mod_assoc[args[0]]), function)(args, message)
+                return await getattr(getattr(self, '%s' % cfg.arg_mod_assoc[args[0]]), function)(args, message)
             else:
-                return await getattr(getattr(self, '%s' % config.arg_mod_assoc[args[0]]), function)(args)
+                return await getattr(getattr(self, '%s' % cfg.arg_mod_assoc[args[0]]), function)(args)
