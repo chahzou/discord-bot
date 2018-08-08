@@ -4,6 +4,8 @@ from ..module import Module
 
 class ColorRoles(Module):
 
+    arg_name = 'color'
+
     async def run(self):
         pass
 

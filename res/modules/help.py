@@ -1,6 +1,8 @@
 from ..module import Module
 
 class Help(Module):
+
+    arg_name = 'help'
     
     async def run(self, args, message=None):
         await self.send_help(args, message)

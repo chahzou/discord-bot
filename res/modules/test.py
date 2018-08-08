@@ -4,6 +4,8 @@ from ..module import Module
 
 
 class Test(Module):
+
+    arg_name = 'test'
     
     async def return_help(self, args):
         return ("`test`: Return test message."
