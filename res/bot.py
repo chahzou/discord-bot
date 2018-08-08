@@ -1,4 +1,4 @@
-import sys, asyncio, discord
+import sys, re, discord
 
 from .util.util import Utility
 from .config import config
@@ -32,17 +32,25 @@ class Bot(discord.Client):
 
         await self.load_modules()
 
-        print('Logged in as {0}'.format(self.user))
+        print('Ready! (Logged in as {0}'.format(self.user) + ")")
         await self.send_message(self.get_channel(self.cfg.general['def_channel_id']), self.cfg.general['name'] + " is online.")
 
 
-    # Initializes modules
+    # Automatically creates instances of all modules in config
+    # TODO: Check safety
     async def load_modules(self):
-        self.info = Info(self)
+
+        regex_arg = re.compile('^[A-Za-z0-9_]+$')
+
+        for mod in self.cfg.modules:
+            if regex_arg.match(mod):
+                exec('self.' + self.util.convert_camelcase_to_underscore(mod) + " = " + mod + '(self)')
+
+        '''self.info = Info(self)
         self.test = Test(self)
         self.administration = Administration(self)
         self.help = Help(self)
-        self.color_roles = ColorRoles(self)
+        self.color_roles = ColorRoles(self)'''
 
 
     # Runs "run" method in specified module of command (See command <-> module association in config)
@@ -59,7 +67,7 @@ class Bot(discord.Client):
             args = await self.util.split_cmd_to_args_list(cmd)
             
             # Call module specified by first argument
-            if args[0] in cfg.arg_mod_assoc.keys():       # If config contains module
+            if args[0] in self.cfg.module_config.keys():       # If config contains module
                 await self.call_module_function('run', args, message)
                 executed = True
 
@@ -73,8 +81,8 @@ class Bot(discord.Client):
     async def call_module_function(self, function, args, message=None):
 
         print(args)
-        if isinstance([args[0], string) and self.cfg.arg_mod_assoc[args[0]]:
+        if isinstance([args[0]], str) and self.cfg.module_config[args[0]]:
             if message:
-                return await getattr(getattr(self, '%s' % cfg.arg_mod_assoc[args[0]]), function)(args, message)
+                return await getattr(getattr(self, '%s' % self.cfg.module_config[args[0]]), function)(args, message)
             else:
-                return await getattr(getattr(self, '%s' % cfg.arg_mod_assoc[args[0]]), function)(args)
+                return await getattr(getattr(self, '%s' % self.cfg.module_config[args[0]]), function)(args)
