@@ -33,12 +33,11 @@ class Bot(discord.Client):
         await self.load_modules()
 
         print('Ready! (Logged in as {0}'.format(self.user) + ")")
-        await self.send_message(self.get_channel(self.cfg.general['def_channel_id']), self.cfg.general['name'] + " is online.")
+        await self.send_message(self.get_channel(self.cfg.general['def_channel_id']), "Now online.")
 
 
     # Automatically creates instances of all modules which are configured in config and imported here
     # Also creates dictionary for association of modules with their command argument
-    # TODO: Fix arg_mod_assoc
     # TODO: Check safety
     # TODO: Automate import
     async def load_modules(self):
@@ -47,25 +46,19 @@ class Bot(discord.Client):
 
         regex_arg = re.compile('^[A-Za-z0-9_]+$')
 
-        for mod_name in self.cfg.modules:
-            if regex_arg.match(mod_name):
+        # Create instances of all modules, get their command arguments and save them to dictionary
 
-                mod_inst_name = await self.util.convert_camelcase_to_underscore(mod_name)
+        count = 0
+        for mod_class_name in self.cfg.modules:
+            if regex_arg.match(mod_class_name):
+                
+                mod_cl = globals()[mod_class_name]
+                mod_inst = mod_cl(self)
 
-                exec('self.' + mod_inst_name + ' = ' + mod_name + '(self)')
+                self.arg_mod_assoc[mod_inst.cmd_arg] = mod_inst
+                count += 1
 
-                mod_arg = None
-                exec('mod_arg = self.' + mod_inst_name + '.cmd_arg')
-                print(mod_arg)
-
-                self.arg_mod_assoc[mod_arg] = mod_inst_name
-        
-        for arg, mod in self.arg_mod_assoc:
-            print(arg + ' ' + mod)
-
-        '''self.info = Info(self)
-        self.test = Test(self)
-        self.help = Help(self)'''
+        print("Initialized " + str(count) + " modules.")
 
 
     # Runs "run" method in specified module
