@@ -4,9 +4,9 @@ from ..module import Module
 
 class ColorRoles(Module):
 
-    arg_name = 'color'
+    cmd_arg = 'color'
 
-    async def run(self):
+    async def run(self, args, message=None):
         pass
 
     # TODO: Change get_content_part to args

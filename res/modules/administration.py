@@ -1,86 +1,87 @@
 from ..module import Module
 
 
+# TODO: Change get_content_part and message to args
+# TODO: Method to delete messages from all channels at once
+
 class Administration(Module):
 
+    cmd_arg = 'mgmt'
 
-    # Temporary storage of deleted messages (useful?)
+    # Temporary storage of deleted messages
     deleted_messages = []
 
-    arg2_fct_assoc = {
-        'delete': 'delete_action',
-    }
-
-    # TODO: Change get_content_part and message to args
 
     async def run(self, args, message=None):
-        
-        if message:
-            arg2 = await self.bot.util.get_content_part(message.content, 2, 1)
 
-            # Call function associated with second argument
-            if arg2 in self.arg2_fct_assoc:
-                await getattr(self, '%s' % self.arg2_fct_assoc[arg2])(message)
+        arg_fct_assoc = {
+            'delete':       'delete_action',
+            'dump_deleted': 'dump_delete_messages',
+        }
+
+        # Call function associated with second argument
+        if len(args) >= 1:
+            if args[0] in arg_fct_assoc.keys():
+                await getattr(self, '%s' % arg_fct_assoc[args[0]])(args[1:], message)
+        else:
+            await self.bot.util.call_module_help([self.cmd_arg])
 
 
-    async def return_help(self):
-        return ("`delete last [number] [optional: user]` - Deletes the last x(max=200) messages by anyone or an optional user."
+    async def return_help(self, args):
+        return ("`delete last [n(max=200)] [optional: user]` - Deletes the last n messages by anyone or an optional user."
             "\n`count-down [ss/mm:ss/hh:mm:ss] [optional: event name]`")
 
 
     # Executes different delete functions depending on third argument
-    async def delete(self, message=None):
+    async def delete(self, args, message=None):
 
-        arg3_fct_assoc = {
+        arg_fct_assoc = {
             'last': 'delete_last_messages'
         }
 
-        if message:
-
-            arg3 = await self.bot.util.get_content_part(message.content, 3, 1)
-
-            if arg3 in self.bot.config.cmd_fct.keys():    # If command is in dictionary
-                await getattr(self, '%s' % arg3_fct_assoc[arg3])(message)
-            else:
-                await self.bot.util.help_message(message.channel, 'delete')
+        if args[0] in arg_fct_assoc.keys():    # If command is in registered
+            await getattr(self, '%s' % arg_fct_assoc[args[0]])(args[1:], message)
+        else:
+            await self.bot.util.call_module_help(self.cmd_arg)
 
 
 
     # Deletes a specific number of messages, optionally by specific user
-    async def delete_last_messages(self, message=None):
+    #   1: limit, 2: user
+    async def delete_last_messages(self, args, message):
 
         global deleted_messages
+        max = 200
 
-        if message is not None:
-            num = await self.bot.util.get_content_part(message.content, 4, 1)
-            user = await self.bot.util.get_content_part(message.content, 5, 1)
+        limit = args[0]
 
-            def num_isvalid(num_check):
-                if num_check is not None:
-                    if num_check.isdigit():
-                        if int(num_check) <= 200:
-                            return True
+        if message.author.server_permissions.manage_messages:
+            if limit and limit.isdigit():
 
-            if num_isvalid(num):
-                num = int(num)
-                if user is None:
-                    if message.author.server_permissions.manage_messages:
-                        deleted_messages = await self.bot.purge_from(message.channel, limit=num)
-                        print(deleted_messages)
+                limit = int(limit)
+                if limit > max:
+                    limit = max
+
+                user = args[1]
+
+                if user:
+
+                    def is_user(m):
+                        return str(user) is str(m.author)
+                    
+                    deleted_messages = await self.bot.purge_from(message.channel, limit=limit, check=is_user)
+                    # TODO: Counter is wrong! Maybe write with own counter and not purge_from!
+                    
                 else:
-                    if message.author.server_permissions.manage_messages:
+                    deleted_messages = await self.bot.purge_from(message.channel, limit=limit)
+                    self.dump_deleted_messages()    # TODO: Remove as it is debugging
+            
+        # else:
+        #     await self.bot.util.send_help_message(self.bot.cfg. delete', message)
 
-                        def is_user(m):
-                            return str(m.author) == str(user)
 
-                        deleted_messages = await self.bot.purge_from(message.channel, limit=num, check=is_user)
-
-                        # TODO: Counter is wrong! Wright with own counter and not purge_from!
-
-                        print("Deleted messages: "+deleted_messages)
-            # else:
-            #     await self.bot.util.send_help_message(self.bot.config. delete', message)
-
+    async def dump_deleted_messages(self):
+        print("Deleted messages: " + deleted_messages)
 
 
     '''# Counts all messages in the channel the command was sent in

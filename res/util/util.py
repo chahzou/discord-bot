@@ -33,13 +33,8 @@ class Utility:
         )
 
 
-    # Returns module name associated with argument in cfg
-    async def return_mod_for_arg(self, arg):
-        return self.bot.cfg.arg_mod_assoc[arg]
-
-
-    async def call_module_help(self, mod_arg):
-        await self.bot.call_module_function('run', ['help', mod_arg])
+    async def call_module_help(self, args):
+        await self.bot.call_module_function('run', 'help', args)
 
 
     async def convert_camelcase_to_underscore(self, name):

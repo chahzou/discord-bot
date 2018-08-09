@@ -10,7 +10,7 @@ class Module(ABC):
     
 
     @property
-    def arg_name(self):
+    def cmd_arg(self):
         raise NotImplementedError
     
 

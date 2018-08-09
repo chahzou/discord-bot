@@ -36,24 +36,39 @@ class Bot(discord.Client):
         await self.send_message(self.get_channel(self.cfg.general['def_channel_id']), self.cfg.general['name'] + " is online.")
 
 
-    # Automatically creates instances of all modules in config
+    # Automatically creates instances of all modules which are configured in config and imported here
+    # Also creates dictionary for association of modules with their command argument
+    # TODO: Fix arg_mod_assoc
     # TODO: Check safety
+    # TODO: Automate import
     async def load_modules(self):
+
+        self.arg_mod_assoc = {}
 
         regex_arg = re.compile('^[A-Za-z0-9_]+$')
 
-        for mod in self.cfg.modules:
-            if regex_arg.match(mod):
-                exec('self.' + self.util.convert_camelcase_to_underscore(mod) + " = " + mod + '(self)')
+        for mod_name in self.cfg.modules:
+            if regex_arg.match(mod_name):
+
+                mod_inst_name = await self.util.convert_camelcase_to_underscore(mod_name)
+
+                exec('self.' + mod_inst_name + ' = ' + mod_name + '(self)')
+
+                mod_arg = None
+                exec('mod_arg = self.' + mod_inst_name + '.cmd_arg')
+                print(mod_arg)
+
+                self.arg_mod_assoc[mod_arg] = mod_inst_name
+        
+        for arg, mod in self.arg_mod_assoc:
+            print(arg + ' ' + mod)
 
         '''self.info = Info(self)
         self.test = Test(self)
-        self.administration = Administration(self)
-        self.help = Help(self)
-        self.color_roles = ColorRoles(self)'''
+        self.help = Help(self)'''
 
 
-    # Runs "run" method in specified module of command (See command <-> module association in config)
+    # Runs "run" method in specified module
     async def on_message(self, message):
 
         if await self.util.is_command(message.content):
@@ -63,12 +78,12 @@ class Bot(discord.Client):
             # Remove operator
             cmd = message.content[len(self.cfg.general['cmd_op']):]
 
-            # Get argument list
+            # Get arguments as list
             args = await self.util.split_cmd_to_args_list(cmd)
             
             # Call module specified by first argument
-            if args[0] in self.cfg.module_config.keys():       # If config contains module
-                await self.call_module_function('run', args, message)
+            if args[0] in self.arg_mod_assoc.keys():       # If config contains module
+                await self.call_module_function('run', args[0], args[1:], message)
                 executed = True
 
             # Sends an error message if command is not in cmdList
@@ -78,11 +93,13 @@ class Bot(discord.Client):
         # elif: Actions for non-command messages
 
 
-    async def call_module_function(self, function, args, message=None):
+    # Calls the specified function in the specified module and passes args and optionally original message
+    async def call_module_function(self, mod_arg, function, args, message=None):
 
-        print(args)
-        if isinstance([args[0]], str) and self.cfg.module_config[args[0]]:
+        print(mod_arg)
+        if (all(isinstance(i, str) for i in [mod_arg, function]) and 
+                mod_arg in self.arg_mod_assoc.keys()):
             if message:
-                return await getattr(getattr(self, '%s' % self.cfg.module_config[args[0]]), function)(args, message)
+                return await getattr(getattr(self, self.arg_mod_assoc[mod_arg]), function)(args, message)
             else:
-                return await getattr(getattr(self, '%s' % self.cfg.module_config[args[0]]), function)(args)
+                return await getattr(getattr(self, self.arg_mod_assoc[mod_arg]), function)(args)

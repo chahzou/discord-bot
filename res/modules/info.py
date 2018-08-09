@@ -5,7 +5,7 @@ from ..module import Module
 
 class Info(Module):
 
-    arg_name = 'info'
+    cmd_arg = 'info'
 
     async def return_help(self, args):
         return "Provides info about the mod."

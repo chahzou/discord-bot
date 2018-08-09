@@ -2,7 +2,7 @@ from ..module import Module
 
 class Help(Module):
 
-    arg_name = 'help'
+    cmd_arg = 'help'
     
     async def run(self, args, message=None):
         await self.send_help(args, message)
@@ -15,7 +15,7 @@ class Help(Module):
 
         # Create help for specific module
         if args[1]:
-            mod_help_str = await self.bot.call_module_function('return_help', args)
+            mod_help_str = await self.bot.call_module_function(args[0], 'return_help', args[1:])
             if isinstance(mod_help_str, str):
                 help_str += "Help for `" + args[1] + "`:\n" + mod_help_str
             else:
@@ -24,11 +24,11 @@ class Help(Module):
         # Create general help
         else:
             mod_args_str = ''
-            for arg in self.bot.cfg.arg_mod_assoc.values():
+            for mod_arg in self.bot.arg_mod_assoc.keys():
                 if not mod_args_str:
-                    mod_args_str += "`" + arg + "`"
+                    mod_args_str += "`" + mod_arg + "`"
                 else:
-                    mod_args_str += ", `" + arg + "`"
+                    mod_args_str += ", `" + mod_arg + "`"
 
             help_str += ("The following modules can currently be accessed: " + mod_args_str + "\nUse `" 
                 + self.bot.cfg.general['cmd_op'] + "help [module]` for more information on each module.")
@@ -37,5 +37,5 @@ class Help(Module):
         await self.bot.send_message(message.channel, help_str)
     
 
-    async def return_help(self):
+    async def return_help(self, args):
         pass
