@@ -93,7 +93,7 @@ class Bot(discord.Client):
 
 
     # Call "run" function in specified module and pass message and args if available
-    async def call_module_run_function(self, mod_arg, args=None, message=None):
+    async def run_module(self, mod_arg, args=None, message=None):
 
         # print(mod_arg + " " + str(args))
 

@@ -5,9 +5,7 @@ from ..module import Module
 class Administration(Module):
 
     cmd_arg = 'mgmt'
-
-    # Temporary storage of deleted messages
-    deleted_messages = []
+    deleted_messages = []   # Temporary storage of deleted messages
 
 
     async def run(self, args=None, message=None):
@@ -20,12 +18,12 @@ class Administration(Module):
         # Call function associated with second argument
         if message and args:
             if args[0] in arg_fct_assoc.keys():
-                if not isinstance(args, str):
+                if args[1] and not isinstance(args, str):
                     await getattr(self, arg_fct_assoc[args[0]])(args[1:], message)
                 else:
                     await getattr(self, arg_fct_assoc[args[0]])(message)
         else:
-            await self.bot.call_module_run_function('help', [self.cmd_arg])
+            await self.bot.run_module('help', [self.cmd_arg])
 
 
     async def return_help(self, args=None):
@@ -34,17 +32,17 @@ class Administration(Module):
 
 
     # Executes different delete functions depending on third argument
-    async def delete(self, args, message=None):
+    async def delete(self, args, message):
 
         arg_fct_assoc = {
             'last': 'delete_last_messages'
         }
 
-        if args[0] in arg_fct_assoc.keys():    # If command is in registered
-            if not isinstance(args, str):
+        if args[0] in arg_fct_assoc.keys():    # If command is registered
+            if args[1] and not isinstance(args, str):
                 await getattr(self, arg_fct_assoc[args[0]])(args[1:], message)
         else:
-            await self.bot.return_module_help(self.cmd_arg)
+            await self.bot.run_module('help', [self.cmd_arg])
 
 
 
