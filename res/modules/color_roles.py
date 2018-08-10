@@ -2,14 +2,18 @@ import re, asyncio, discord
 from ..module import Module
 
 
+# TODO: Fix/Update
 class ColorRoles(Module):
 
     cmd_arg = 'color'
 
-    async def run(self, args, message=None):
+    async def run(self, args=None, message=None):
         pass
 
-    # TODO: Change get_content_part to args
+    async def return_help(self, args= None):
+        return "Use `color [hex-code]` to set your username color, for example #123456."
+
+
     
     # Gives the author of the command a role with the given color
     async def set_color(self, message=None):
@@ -88,6 +92,3 @@ class ColorRoles(Module):
                     if used is False:
                         await self.bot.delete_role(message.server, role)      # delete the role if it's not used
     
-
-    async def return_help(self, args):
-        return "Use `color [hex-code]` to set your username color, for example #123456."

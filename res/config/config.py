@@ -11,6 +11,7 @@ modules = [
     'Info',
     'Help',
     'Test',
+    'Administration',
 ]
 
 # Other

@@ -15,9 +15,9 @@ class Module(ABC):
     
 
     @abstractmethod
-    def run(self, args, message=None):
+    def run(self, args=None, message=None):
         raise NotImplementedError
 
     @abstractmethod
-    def return_help(self, args):
+    def return_help(self, args=None):
         raise NotImplementedError

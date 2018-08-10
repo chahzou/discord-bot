@@ -16,7 +16,6 @@ class Utility:
         return string.split(' ', self.bot.cfg.other['max_args'])
 
     
-
     # Send info message
     async def info_message(self, channel, content):
         await self.bot.send_message(
@@ -26,20 +25,25 @@ class Utility:
 
 
     # Sends an error message
-    async def error_message(self, channel, content):
+    async def send_error_message(self, channel, content):
         await self.bot.send_message(
             channel, 
             "Error: " + content + "\nType `!help [command]` to list all possible commands or add a command to get more information."
         )
 
 
-    async def call_module_help(self, args):
-        await self.bot.call_module_function('run', 'help', args)
+    async def print_console_error(self, type, content):
+        print('(Error) ' + type + ': ' + content)
 
 
     async def convert_camelcase_to_underscore(self, name):
         s1 = re.sub('(.)([A-Z][a-z]+)', r'\1_\2', name)
         return re.sub('([a-z0-9])([A-Z])', r'\1_\2', s1).lower()
+    
+
+    async def return_name_of_module(self, mod_arg):
+        return type(self.bot.arg_mod_assoc[mod_arg]).__name__
+
 
     # Sends different help messages depending on second argument
     '''async def help_message(self, channel, cmd=None):

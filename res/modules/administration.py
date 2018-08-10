@@ -1,9 +1,7 @@
 from ..module import Module
 
 
-# TODO: Change get_content_part and message to args
 # TODO: Method to delete messages from all channels at once
-
 class Administration(Module):
 
     cmd_arg = 'mgmt'
@@ -12,7 +10,7 @@ class Administration(Module):
     deleted_messages = []
 
 
-    async def run(self, args, message=None):
+    async def run(self, args=None, message=None):
 
         arg_fct_assoc = {
             'delete':       'delete_action',
@@ -20,16 +18,19 @@ class Administration(Module):
         }
 
         # Call function associated with second argument
-        if len(args) >= 1:
+        if message and args:
             if args[0] in arg_fct_assoc.keys():
-                await getattr(self, '%s' % arg_fct_assoc[args[0]])(args[1:], message)
+                if not isinstance(args, str):
+                    await getattr(self, arg_fct_assoc[args[0]])(args[1:], message)
+                else:
+                    await getattr(self, arg_fct_assoc[args[0]])(message)
         else:
-            await self.bot.util.call_module_help([self.cmd_arg])
+            await self.bot.call_module_run_function('help', [self.cmd_arg])
 
 
-    async def return_help(self, args):
-        return ("`delete last [n(max=200)] [optional: user]` - Deletes the last n messages by anyone or an optional user."
-            "\n`count-down [ss/mm:ss/hh:mm:ss] [optional: event name]`")
+    async def return_help(self, args=None):
+        return ("- `delete last [n(max=200)] [optional: user(user#1234)]`: Deletes the last n messages by anyone or an optional user."
+            "\n- `count-down [ss/mm:ss/hh:mm:ss] [optional: event name]`")
 
 
     # Executes different delete functions depending on third argument
@@ -40,9 +41,10 @@ class Administration(Module):
         }
 
         if args[0] in arg_fct_assoc.keys():    # If command is in registered
-            await getattr(self, '%s' % arg_fct_assoc[args[0]])(args[1:], message)
+            if not isinstance(args, str):
+                await getattr(self, arg_fct_assoc[args[0]])(args[1:], message)
         else:
-            await self.bot.util.call_module_help(self.cmd_arg)
+            await self.bot.return_module_help(self.cmd_arg)
 
 
 
