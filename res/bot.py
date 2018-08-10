@@ -114,9 +114,7 @@ class Bot(discord.Client):
     # Call "return_help" function in specified module and pass args if available
     async def return_module_help(self, mod_arg, args=None):
 
-        if (isinstance(mod_arg, str) and 
-                mod_arg in self.arg_mod_assoc.keys()):
-
+        if isinstance(mod_arg, str) and mod_arg in self.arg_mod_assoc.keys():
             if args:
                 return await getattr(self.arg_mod_assoc[mod_arg], 'return_help')(args)
             else:
