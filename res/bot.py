@@ -82,7 +82,7 @@ class Bot(discord.Client):
             
             # Call module specified by first argument
             if args[0] in self.arg_mod_assoc.keys():       # If config contains module
-                await self.call_module_run_function(args[0], args[1:], message)
+                await self.run_module(args[0], args[1:], message)
                 executed = True
 
             # Sends an error message if command is not in cmdList
@@ -97,9 +97,7 @@ class Bot(discord.Client):
 
         # print(mod_arg + " " + str(args))
 
-        if (isinstance(mod_arg, str) and 
-                mod_arg in self.arg_mod_assoc.keys()):
-
+        if isinstance(mod_arg, str) and mod_arg in self.arg_mod_assoc.keys():
             if args:
                 if message:
                     return await getattr(self.arg_mod_assoc[mod_arg], 'run')(args, message)

@@ -1,21 +1,21 @@
 from ..module import Module
 
+
+# TODO: Include argument to send specific message
 class Help(Module):
 
     cmd_arg = 'help'
     
     async def run(self, args=None, message=None):
 
+        # Create help for specific module or general help
         help_str = ""
 
-        # Create help for specific module
         if args:
-            if not isinstance(args, str):
+            if len(args) >= 2 and not isinstance(args, str):
                 help_str = await self.create_help_for_module(args[0], args[1:])
             else:
                 help_str = await self.create_help_for_module(args[0])
-        
-        # Create general help
         else:
             help_str = await self.create_help_general()
 
@@ -48,7 +48,6 @@ class Help(Module):
         else:
             mod_help_str = await self.bot.return_module_help(mod_arg)
         
-        print(mod_arg)
         mod_name = await self.bot.util.return_name_of_module(mod_arg)
 
         if isinstance(mod_help_str, str):

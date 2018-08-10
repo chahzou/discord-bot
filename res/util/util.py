@@ -1,5 +1,6 @@
 import re
 
+
 class Utility:
     
     def __init__(self, bot):
