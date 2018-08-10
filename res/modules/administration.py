@@ -11,35 +11,35 @@ class Administration(Module):
     async def run(self, args=None, message=None):
 
         arg_fct_assoc = {
-            'delete':       'delete_action',
+            'delete':       'delete',
             'dump_deleted': 'dump_delete_messages',
         }
 
         # Call function associated with second argument
         if message and args:
             if args[0] in arg_fct_assoc.keys():
-                if args[1] and not isinstance(args, str):
+                if len(args) >= 2 and not isinstance(args, str):
                     await getattr(self, arg_fct_assoc[args[0]])(args[1:], message)
                 else:
-                    await getattr(self, arg_fct_assoc[args[0]])(message)
+                    await getattr(self, arg_fct_assoc[args[0]])(None, message)
         else:
             await self.bot.run_module('help', [self.cmd_arg])
 
 
     async def return_help(self, args=None):
-        return ("- `delete last [n(max=200)] [optional: user(user#1234)]`: Deletes the last n messages by anyone or an optional user."
+        return ("- `delete last [n(max=200)] [optional: user-id]`: Deletes the last n messages by anyone or optionally a user."
             "\n- `count-down [ss/mm:ss/hh:mm:ss] [optional: event name]`")
 
 
     # Executes different delete functions depending on third argument
-    async def delete(self, args, message):
+    async def delete(self, args=None, message=None):
 
         arg_fct_assoc = {
             'last': 'delete_last_messages'
         }
 
-        if args[0] in arg_fct_assoc.keys():    # If command is registered
-            if args[1] and not isinstance(args, str):
+        if args and message and len(args) >= 2 and not isinstance(args, str):
+            if args[0] in arg_fct_assoc.keys():    # If command is registered
                 await getattr(self, arg_fct_assoc[args[0]])(args[1:], message)
         else:
             await self.bot.run_module('help', [self.cmd_arg])
@@ -48,40 +48,64 @@ class Administration(Module):
 
     # Deletes a specific number of messages, optionally by specific user
     #   1: limit, 2: user
+    # TODO: Limit-counter may be wrong, alternatively write own counter and not purge_from
+    # TODO: Delete from all channels if additional argument 'global' is given
     async def delete_last_messages(self, args, message):
 
-        global deleted_messages
-        max = 200
+        limit = None
+        user_id = None
+        
+        max_limit = 200
 
-        limit = args[0]
+        # Get arguments
+        if isinstance(args, str):
+            tmp_limit = args
+        else:
+            tmp_limit = args[0]
 
+        if tmp_limit:
+            tmp_limit = int(tmp_limit)
+            if tmp_limit > max_limit:
+                tmp_limit = max_limit
+            limit = tmp_limit
+        
+        if not isinstance(args, str) and len(args) >= 2:
+            user_id = args[1]
+
+        # Delete messages
         if message.author.server_permissions.manage_messages:
-            if limit and limit.isdigit():
-
-                limit = int(limit)
-                if limit > max:
-                    limit = max
-
-                user = args[1]
-
-                if user:
-
+            if limit:
+                
+                # By user
+                if user_id:
                     def is_user(m):
-                        return str(user) is str(m.author)
+                        return str(user_id) == str(m.author.id)
                     
-                    deleted_messages = await self.bot.purge_from(message.channel, limit=limit, check=is_user)
-                    # TODO: Counter is wrong! Maybe write with own counter and not purge_from!
-                    
+                    self.deleted_messages = await self.bot.purge_from(message.channel, limit=limit, check=is_user)
+                    await self.bot.send_message(message.channel, "Deleted " + str(limit) + " messages by " + user_id + ".")
+                    await self.dump_deleted_messages()
+                
+                # Too many arguments
+                elif len(args) > 2:
+                    await self.bot.run_module('help', self.cmd_arg)
+                
+                # By anyone
                 else:
-                    deleted_messages = await self.bot.purge_from(message.channel, limit=limit)
-                    self.dump_deleted_messages()    # TODO: Remove as it is debugging
-            
-        # else:
-        #     await self.bot.util.send_help_message(self.bot.cfg. delete', message)
+                    self.deleted_messages = await self.bot.purge_from(message.channel, limit=limit)
+                    await self.bot.send_message(message.channel, "Deleted " + str(limit) + " messages.")
+                    await self.dump_deleted_messages()
+
+            else:
+                await self.bot.run_module('help', self.cmd_arg)
+        # TODO: 
+        # else: 
+        #   User doesn't have permission: Help message?
 
 
     async def dump_deleted_messages(self):
-        print("Deleted messages: " + deleted_messages)
+        print("Last deleted messages: ")
+        for msg in self.deleted_messages:
+            print(str(msg.author) + " (" + str(msg.author.nick) + ")" + ": " + str(msg.content))
 
 
     '''# Counts all messages in the channel the command was sent in
