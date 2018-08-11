@@ -11,11 +11,6 @@ class Utility:
         if msg_content.startswith(self.bot.cfg.general['cmd_op']):
             return True
 
-
-    # Returns list of space-seperated arguments in string
-    async def split_cmd_to_args_list(self, string):
-        return string.split(' ', self.bot.cfg.other['max_args'])
-
     
     # Send info message
     async def info_message(self, channel, content):

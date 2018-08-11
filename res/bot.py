@@ -77,8 +77,8 @@ class Bot(discord.Client):
             # Remove operator
             cmd = message.content[len(self.cfg.general['cmd_op']):]
 
-            # Get arguments as list
-            args = await self.util.split_cmd_to_args_list(cmd)
+            # Split command into argument list
+            args = cmd.split(' ', self.cfg.other['max_args'])
             
             # Call module specified by first argument
             if args[0] in self.arg_mod_assoc.keys():       # If config contains module
