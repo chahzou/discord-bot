@@ -21,7 +21,6 @@ class Registration(Module):
                 def_channel = await self.bot.util.get_default_channel()
 
                 await self.bot.add_roles(user, role)    # Add role
-                # await self.bot.move_member(user, def_channel)   # Move to default text channel
                 await self.bot.send_message(def_channel, "Welcome " + user.mention + ".")   # Send welcome message
                 await self.bot.run_module('mgmt', ['delete', 'last', '1', user.id], message)   # Delete command for this action
 

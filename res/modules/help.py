@@ -1,7 +1,7 @@
 from ..module import Module
 
 
-# TODO: Include argument to send specific message
+# Sends help message about available modules or a specific module
 class Help(Module):
 
     cmd_arg = 'help'
@@ -55,7 +55,6 @@ class Help(Module):
         else:
             self.bot.util.print_console_error("Module-Error: ", "Module method 'return_help' in " + 
                 mod_name + " didn't return a string.")
-        
         pass
 
 

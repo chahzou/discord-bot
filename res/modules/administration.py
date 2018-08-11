@@ -1,6 +1,7 @@
 from ..module import Module
 
 
+# TODO: Implement way to make bot response optional for delete action
 # TODO: Method to delete messages from all channels at once
 class Administration(Module):
 
@@ -47,6 +48,9 @@ class Administration(Module):
         if args and message and len(args) >= 2 and not isinstance(args, str):
             if args[0] in arg_fct_assoc.keys():    # If command is registered
                 await getattr(self, arg_fct_assoc[args[0]])(args[1:], message)
+            else:
+                await self.bot.send_message(message.channel, "Command `" + args[0] + "` isn't available.")
+                await self.bot.run_module('help', [self.cmd_arg], message)
         else:
             await self.bot.run_module('help', [self.cmd_arg])
 
@@ -78,8 +82,9 @@ class Administration(Module):
         if not isinstance(args, str) and len(args) >= 2:
             user_id = args[1]
 
+
         # Delete messages
-        if message.author.server_permissions.manage_messages:
+        if message.author.server_permissions.manage_messages or message.author.id == user_id:
             if limit:
                 
                 # By user
@@ -91,41 +96,44 @@ class Administration(Module):
                     def is_user(m):
                         return str(user_id) == str(m.author.id)
 
-                    # Limit for purge only applies to amount of messages checked, not deleted (TODO: Could be a bug that gets fixed!)
+                    # Limit for purge function only applies to amount of messages checked, not deleted (TODO: Could be a bug that gets fixed!)
                     # This loop repeats the purge function while increasing the amount of messages checked depending on how many messages were skipped
-                    while len(self.deleted_messages) != limit and tmp_limit <= max_limit:
+                    while len(self.deleted_messages) < limit and tmp_limit <= max_limit:
                         tmp_deleted_messages = await self.bot.purge_from(message.channel, limit=tmp_limit, check=is_user)
                         
                         self.deleted_messages += tmp_deleted_messages
 
-                        amount_to_skip = tmp_limit - len(tmp_deleted_messages)
-                        tmp_limit = amount_to_skip + limit - len(self.deleted_messages)
+                        amount_skipped = tmp_limit - len(tmp_deleted_messages)
+                        tmp_limit = amount_skipped + limit - len(self.deleted_messages)
 
-                    await self.bot.send_message(message.channel, "Deleted " + str(len(self.deleted_messages)) + " messages by " + user_id + ".")
+                    await self.bot.send_message(message.channel, "Deleted " + str(len(self.deleted_messages)) + " message(s) by " + user_id + ".")
                     if len(self.deleted_messages) > 0:
                         await self.dump_deleted_messages()
                 
                 # Too many arguments
                 elif len(args) > 2:
+                    await self.bot.send_message("Too many arguments. Make sure to use the user-id, not the name of the user.")
                     await self.bot.run_module('help', self.cmd_arg)
                 
                 # By anyone
                 else:
                     self.deleted_messages = await self.bot.purge_from(message.channel, limit=limit)
-                    await self.bot.send_message(message.channel, "Deleted " + str(limit) + " messages.")
+                    await self.bot.send_message(message.channel, "Deleted " + str(len(self.deleted_messages)) + " messages.")
+                    print("Deleted " + str(len(self.deleted_messages)) + " messages in " + message.channel.name + ".")
                     await self.dump_deleted_messages()
 
             else:
+                await self.bot.send_message("This command requires a limit.")
                 await self.bot.run_module('help', self.cmd_arg)
-        # TODO: 
-        # else: 
-        #   User doesn't have permission: Help message?
+        else: 
+            await self.bot.send_message("User doesn't have permission to delete these messages.")
+            await self.bot.run_module('help', [self.cmd_arg])
 
 
     async def dump_deleted_messages(self):
         print("Last deleted messages: ")
         for msg in self.deleted_messages:
-            print(str(msg.author) + " (" + str(msg.author.nick) + ")" + ": '" + str(msg.content) + "'")
+            print("  " + str(msg.author) + " (" + str(msg.author.nick) + ")" + ": '" + str(msg.content) + "'")
 
 
     '''# Counts all messages in the channel the command was sent in
