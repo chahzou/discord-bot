@@ -1,7 +1,7 @@
 from ..module import Module
 
 
-# TODO: Implement way to make bot response optional for delete action
+# TODO: Implement way to make bot-response for delete action optional
 # TODO: Method to delete messages from all channels at once
 class Administration(Module):
 
