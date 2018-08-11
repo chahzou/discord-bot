@@ -5,8 +5,9 @@ from .config import config
 
 from .modules.info import Info
 from .modules.test import Test
-from .modules.administration import Administration
 from .modules.help import Help
+from .modules.administration import Administration
+from .modules.registration import Registration
 from .modules.color_roles import ColorRoles
 
 # TODO: Import all python files from modules folder automatically (Pasted)
