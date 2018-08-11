@@ -16,19 +16,25 @@ class Administration(Module):
         }
 
         # Call function associated with second argument
-        if message and args:
-            if args[0] in arg_fct_assoc.keys():
-                if len(args) >= 2 and not isinstance(args, str):
-                    await getattr(self, arg_fct_assoc[args[0]])(args[1:], message)
+        if message:
+            if args:
+                if args[0] in arg_fct_assoc.keys():
+                    if len(args) >= 2 and not isinstance(args, str):
+                        await getattr(self, arg_fct_assoc[args[0]])(args[1:], message)
+                    else:
+                        await getattr(self, arg_fct_assoc[args[0]])(None, message)
                 else:
-                    await getattr(self, arg_fct_assoc[args[0]])(None, message)
+                    await self.bot.send_message(message.channel, "Command `" + args[0] + "` isn't available.")
+                    await self.bot.run_module('help', [self.cmd_arg], message)
+            else:
+                await self.bot.run_module('help', [self.cmd_arg], message)
         else:
             await self.bot.run_module('help', [self.cmd_arg])
 
 
     async def return_help(self, args=None):
-        return ("- `delete last [n(max=200)] [optional: user-id]`: Deletes the last n messages by anyone or optionally a user."
-            "\n- `count-down [ss/mm:ss/hh:mm:ss] [optional: event name]`")
+        return ("- `delete last [n(max=200)] [optional: user-id]`: Iterates the last n messages and deletes them or optionally if they match a specified user-id."
+            "")
 
 
     # Executes different delete functions depending on third argument
@@ -48,7 +54,7 @@ class Administration(Module):
 
     # Deletes a specific number of messages, optionally by specific user
     #   1: limit, 2: user
-    # TODO: Limit-counter may be wrong, alternatively write own counter and not purge_from
+    # TODO: Limit-counter may be wrong, alternatively write own counter and don't use purge_from
     # TODO: Delete from all channels if additional argument 'global' is given
     async def delete_last_messages(self, args, message):
 
@@ -78,12 +84,26 @@ class Administration(Module):
                 
                 # By user
                 if user_id:
+
+                    self.deleted_messages = []
+                    tmp_limit = limit
+
                     def is_user(m):
                         return str(user_id) == str(m.author.id)
-                    
-                    self.deleted_messages = await self.bot.purge_from(message.channel, limit=limit, check=is_user)
-                    await self.bot.send_message(message.channel, "Deleted " + str(limit) + " messages by " + user_id + ".")
-                    await self.dump_deleted_messages()
+
+                    # Limit for purge only applies to amount of messages checked, not deleted (TODO: Could be a bug that gets fixed!)
+                    # This loop repeats the purge function while increasing the amount of messages checked depending on how many messages were skipped
+                    while len(self.deleted_messages) != limit and tmp_limit <= max_limit:
+                        tmp_deleted_messages = await self.bot.purge_from(message.channel, limit=tmp_limit, check=is_user)
+                        
+                        self.deleted_messages += tmp_deleted_messages
+
+                        amount_to_skip = tmp_limit - len(tmp_deleted_messages)
+                        tmp_limit = amount_to_skip + limit - len(self.deleted_messages)
+
+                    await self.bot.send_message(message.channel, "Deleted " + str(len(self.deleted_messages)) + " messages by " + user_id + ".")
+                    if len(self.deleted_messages) > 0:
+                        await self.dump_deleted_messages()
                 
                 # Too many arguments
                 elif len(args) > 2:
@@ -105,7 +125,7 @@ class Administration(Module):
     async def dump_deleted_messages(self):
         print("Last deleted messages: ")
         for msg in self.deleted_messages:
-            print(str(msg.author) + " (" + str(msg.author.nick) + ")" + ": " + str(msg.content))
+            print(str(msg.author) + " (" + str(msg.author.nick) + ")" + ": '" + str(msg.content) + "'")
 
 
     '''# Counts all messages in the channel the command was sent in
@@ -121,6 +141,7 @@ class Administration(Module):
 
 
     # Display a countdown with an optional event field
+    # - `count-down [ss/mm:ss/hh:mm:ss] [optional: event name]`
     async def count_down(self, message=None):
 
         if message is not None:
