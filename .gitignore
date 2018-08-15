@@ -1,4 +1,5 @@
 res/config/_access.py
 __pycache__/
+/run.bat
 .idea
 .vscode
