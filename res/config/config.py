@@ -13,9 +13,11 @@ modules = [
     'Test',
     'Administration',
     'Registration',
+    'ColorRoles',
 ]
 
 # Other
 other = {
+    'max_msg_len': 10000,
     'max_args': 100,
 }
