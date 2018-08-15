@@ -13,6 +13,7 @@ modules = [
     'Test',
     'Administration',
     'Registration',
+    'ColorRoles',
 ]
 
 # Other
