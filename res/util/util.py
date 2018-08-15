@@ -50,6 +50,7 @@ class Utility:
     async def get_default_channel(self):
         return self.bot.get_channel(self.bot.cfg.general['def_channel_id'])
 
+
     # Sends different help messages depending on second argument
     '''async def help_message(self, channel, cmd=None):
 

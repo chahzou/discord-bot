@@ -71,26 +71,25 @@ class Bot(discord.Client):
     # Runs "run" method in specified module
     async def on_message(self, message):
 
-        if await self.util.is_command(message.content):
+        if len(message.content) <= self.cfg.other['max_msg_len']:
 
-            executed = False
+            if await self.util.is_command(message.content):
 
-            # Remove operator
-            cmd = message.content[len(self.cfg.general['cmd_op']):]
+                executed = False
 
-            # Split command into argument list
-            args = cmd.split(' ', self.cfg.other['max_args'])
-            
-            # Call module specified by first argument
-            if args[0] in self.arg_mod_assoc.keys():       # If config contains module
-                await self.run_module(args[0], args[1:], message)
-                executed = True
+                cmd = message.content[len(self.cfg.general['cmd_op']):]     # Remove operator
+                args = cmd.split(' ', self.cfg.other['max_args'])           # Split command into argument list
+                
+                # Call module specified by first argument
+                if args[0] in self.arg_mod_assoc.keys():                    # If config contains module
+                    await self.run_module(args[0], args[1:], message)
+                    executed = True
 
-            # Sends an error message if command is not in cmdList
-            if not executed or not args[0]:
-                await self.util.send_error_message(message.channel, "No module for \'" + args[0] + "\' was found or configured.")
+                # Send error message if command is not in cmdList
+                if not executed or not args[0]:
+                    await self.util.send_error_message(message.channel, "No module for \'" + args[0] + "\' was found or configured.")
 
-        # elif: Actions for non-command messages
+            # elif: Actions for non-command messages
 
 
     # Call "run" function in specified module and pass message and args if available
