@@ -1,4 +1,4 @@
-import sys, re, discord
+import sys, re, discord, asyncio
 
 from .util.util import Utility
 from .config import config
@@ -45,7 +45,7 @@ class Bot(discord.Client):
     # Also creates dictionary for association of modules with their command argument
     # TODO: Check safety
     # TODO: Automate import
-    # TODO: Maybe only pass only utility instance to modules (to restrict access to bot) ???
+    # TODO: Maybe only pass utility instance to modules (to restrict access to bot)
     async def load_modules(self):
 
         self.arg_mod_assoc = {}
@@ -73,7 +73,10 @@ class Bot(discord.Client):
 
         if len(message.content) <= self.cfg.other['max_msg_len']:
 
+
             if await self.util.is_command(message.content):
+                
+                # Actions for command messages:
 
                 executed = False
 
@@ -89,7 +92,13 @@ class Bot(discord.Client):
                 if not executed or not args[0]:
                     await self.util.send_error_message(message.channel, "No module for \'" + args[0] + "\' was found or configured.")
 
-            # elif: Actions for non-command messages
+
+            # Actions for non-command messages:
+
+            # Auto-delete messages in specified channels
+            if message.channel.id in self.cfg.other['channel_ids_to_auto_delete_msgs']:
+                await asyncio.sleep(self.cfg.other['auto_delete_delay_s'])
+                await self.run_module('mgmt', ['delete', 'last', '1', message.author.id, 'silent'], message)
 
 
     # Call "run" function in specified module and pass message and args if available
