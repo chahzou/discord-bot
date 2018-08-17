@@ -51,6 +51,11 @@ class Utility:
         return self.bot.get_channel(self.bot.cfg.general['def_channel_id'])
 
 
+    async def is_number(self, str):
+        regex_arg = re.compile('^[0-9]+$')
+        return regex_arg.match(str)
+
+
     # Sends different help messages depending on second argument
     '''async def help_message(self, channel, cmd=None):
 

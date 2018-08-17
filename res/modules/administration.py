@@ -34,7 +34,7 @@ class Administration(Module):
 
 
     async def return_help(self, args=None):
-        return ("- `delete last [n(max=200)] [optional: user-id]`: Iterates the last n messages and deletes them or optionally if they match a specified user-id."
+        return ("- `delete last [n (max=200)] [optional: user-id] [optional: 'silent']`: Deletes the last n messages. The user-id can be copied by right-clicking on a user."
             "")
 
 
@@ -57,17 +57,23 @@ class Administration(Module):
 
 
     # Deletes a specific number of messages, optionally by specific user
-    #   1: limit, 2: user
-    # TODO: Limit-counter may be wrong, alternatively write own counter and don't use purge_from
-    # TODO: Delete from all channels if additional argument 'global' is given
+    #   1: limit, 2: user, 3: silent
+    # TODO: Delete from all channels if additional argument 'global' is given (difficult)
     async def delete_last_messages(self, args, message):
+
+        max_limit = 200
 
         limit = None
         user_id = None
-        
-        max_limit = 200
+
+        send_response = True
+        silent_arg = 'silent'
+
+        # server_wide = False
+        # server_wide_arg = 'global'
 
         # Get arguments
+
         if isinstance(args, str):
             tmp_limit = args
         else:
@@ -80,8 +86,15 @@ class Administration(Module):
             limit = tmp_limit
         
         if not isinstance(args, str) and len(args) >= 2:
-            user_id = args[1]
 
+            if await self.bot.util.is_number(args[1]):
+                user_id = args[1]
+
+            if (silent_arg in i for i in args):
+                send_response = False
+            # if (server_wide_arg in i for i in args):
+            #     server_wide = True
+        
 
         # Delete messages
         if message.author.server_permissions.manage_messages or message.author.id == user_id:
@@ -106,7 +119,9 @@ class Administration(Module):
                         amount_skipped = tmp_limit - len(tmp_deleted_messages)
                         tmp_limit = amount_skipped + limit - len(self.deleted_messages)
 
-                    await self.bot.send_message(message.channel, "Deleted " + str(len(self.deleted_messages)) + " message(s) by " + user_id + ".")
+                    if send_response:
+                        await self.bot.send_message(message.channel, "Deleted " + str(len(self.deleted_messages)) + " message(s) by " + user_id + ".")
+
                     if len(self.deleted_messages) > 0:
                         await self.dump_deleted_messages()
                 
@@ -118,7 +133,10 @@ class Administration(Module):
                 # By anyone
                 else:
                     self.deleted_messages = await self.bot.purge_from(message.channel, limit=limit)
-                    await self.bot.send_message(message.channel, "Deleted " + str(len(self.deleted_messages)) + " messages.")
+
+                    if send_response:
+                        await self.bot.send_message(message.channel, "Deleted " + str(len(self.deleted_messages)) + " messages.")
+
                     print("Deleted " + str(len(self.deleted_messages)) + " messages in " + message.channel.name + ".")
                     await self.dump_deleted_messages()
 
@@ -131,7 +149,7 @@ class Administration(Module):
 
 
     async def dump_deleted_messages(self):
-        print("Last deleted messages: ")
+        print("Last deleted message(s): ")
         for msg in self.deleted_messages:
             print("  " + str(msg.author) + " (" + str(msg.author.nick) + ")" + ": '" + str(msg.content) + "'")
 
