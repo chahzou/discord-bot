@@ -4,9 +4,9 @@ from ..module import Module
 # Gives user a role and sends a welcome message
 class Registration(Module):
 
-    cmd_arg = 'stay'
-    registration_role = 'staying'
-
+    cmd_arg = 'board'
+    registration_role = 'on-board'
+    auto_delete_cmd = False     # Deactivated because auto-delete is already channel-wide
 
     async def run(self, args=None, message=None):
 
@@ -22,7 +22,9 @@ class Registration(Module):
 
                 await self.bot.add_roles(user, role)    # Add role
                 await self.bot.send_message(def_channel, "Welcome " + user.mention + ".")   # Send welcome message
-                await self.bot.run_module('mgmt', ['delete', 'last', '1', user.id], message)   # Delete command for this action
+
+                if self.auto_delete_cmd:
+                    await self.bot.run_module('mgmt', ['delete', 'last', '1', user.id, 'silent'], message)   # Delete command for this action
 
 
     async def return_help(self, args=None):
