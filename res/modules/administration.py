@@ -34,7 +34,7 @@ class Administration(Module):
 
 
     async def return_help(self, args=None):
-        return ("- `delete last [n (max=200)] [optional: user-id] [optional: 'silent']`: Deletes the last n messages. The user-id can be copied by right-clicking on a user."
+        return ("`delete last [n (max=200)] [optional: user-id] [optional: 'silent']`: Deletes the last n messages, optionally by a user, if the author has the appropriate rights. (The user-id can be copied by right-clicking on a user when in dev mode.)"
             "")
 
 
@@ -141,10 +141,10 @@ class Administration(Module):
                     await self.dump_deleted_messages()
 
             else:
-                await self.bot.send_message("This command requires a limit.")
+                await self.bot.send_message(message.channel, "This command requires a limit.")
                 await self.bot.run_module('help', self.cmd_arg)
         else: 
-            await self.bot.send_message("User doesn't have permission to delete these messages.")
+            await self.bot.send_message(message.channel, "User doesn't have permission to delete these messages.")
             await self.bot.run_module('help', [self.cmd_arg])
 
 
