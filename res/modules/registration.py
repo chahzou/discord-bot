@@ -21,6 +21,8 @@ class Registration(Module):
                 def_channel = await self.bot.util.get_default_channel()
 
                 await self.bot.add_roles(user, role)    # Add role
+                
+                await self.bot.util.print(user.name + " has been registered.")
                 await self.bot.send_message(def_channel, "Welcome " + user.mention + ".")   # Send welcome message
 
                 if self.auto_delete_cmd:

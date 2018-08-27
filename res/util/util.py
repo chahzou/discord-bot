@@ -1,4 +1,4 @@
-import re
+import re, datetime
 
 
 class Utility:
@@ -54,6 +54,11 @@ class Utility:
     async def is_number(self, str):
         regex_arg = re.compile('^[0-9]+$')
         return regex_arg.match(str)
+
+
+    async def print(self, text):
+        now = datetime.datetime.now()
+        print('[' + str(now.day) + '. ' + str(now.hour) + ':' + str(now.minute) + '] ' + text)
 
 
     # Sends different help messages depending on second argument
