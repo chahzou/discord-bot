@@ -149,9 +149,17 @@ class Administration(Module):
 
 
     async def dump_deleted_messages(self):
+        
         await self.bot.util.print("Last deleted message(s): ")
         for msg in self.deleted_messages:
-            await self.bot.util.print("  " + str(msg.author) + " (" + str(msg.author.nick) + ")" + ": '" + str(msg.content) + "'")
+
+            name = str(msg.author)
+            nick = ""
+
+            if msg.author.nick:
+                nick = " (" + msg.author.nick + ")"
+            
+            await self.bot.util.print("  " + name + nick + ": '" + msg.content + "'")
 
 
     '''# Counts all messages in the channel the command was sent in
