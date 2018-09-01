@@ -4,8 +4,8 @@ from ..module import Module
 # Gives user a role and sends a welcome message
 class Registration(Module):
 
-    cmd_arg = 'stay'
-    registration_role = 'staying'
+    cmd_arg = 'register'
+    registration_role = 'registered'
 
 
     async def run(self, args=None, message=None):
