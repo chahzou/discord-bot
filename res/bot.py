@@ -46,6 +46,7 @@ class Bot(discord.Client):
     # TODO: Check safety
     # TODO: Automate import
     # TODO: Maybe only pass utility instance to modules (to restrict access to bot)
+    # TODO: Automatic execution of commands in intervals. Possibly through module and configurable through commands.
     async def load_modules(self):
 
         self.arg_mod_assoc = {}
