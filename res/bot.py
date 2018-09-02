@@ -86,7 +86,10 @@ class Bot(discord.Client):
                 
                 # Call module specified by first argument
                 if args[0] in self.arg_mod_assoc.keys():                    # If config contains module
-                    await self.run_module(args[0], args[1:], message)
+                    try:
+                        await self.run_module(args[0], args[1:], message)
+                    except:
+                        print('Unexpected Error.')
                     executed = True
 
                 # Send error message if command is not in cmdList
