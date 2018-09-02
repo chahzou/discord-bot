@@ -18,6 +18,7 @@ modules = [
 
 # Other
 other = {
+    'ready_msg': "Now online.",
     'max_msg_len': 10000,
     'max_args': 100,
     'channel_ids_to_auto_delete_msgs': ['422045325675593728'],

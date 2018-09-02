@@ -28,6 +28,7 @@ __all__ = [ basename(f)[:-3] for f in modules if isfile(f) and not f.endswith('_
 #   Consequently the argument list has to be checked to not be an instance of string before accessing via iterator.
 
 
+# TODO: Automatic execution of commands in intervals. Possibly through module and configurable through commands.
 class Bot(discord.Client):
 
     async def on_ready(self):
@@ -38,7 +39,17 @@ class Bot(discord.Client):
         await self.load_modules()
 
         print('Ready! (Logged in as {0}'.format(self.user) + ")")
-        await self.send_message(self.get_channel(self.cfg.general['def_channel_id']), "Now online.")
+
+        def_channel = self.get_channel(self.cfg.general['def_channel_id'])
+        ready_msg = self.cfg.other['ready_msg']
+
+        # Delete last ready message if within 10 messages
+        async for msg in self.logs_from(def_channel, limit=10, reverse=True):
+            if msg.author == self.user and msg.content == ready_msg:
+                await self.delete_message(msg)
+
+        # Send ready message
+        await self.send_message(def_channel, ready_msg)
 
 
     # Automatically creates instances of all modules which are configured in config and imported
@@ -46,7 +57,6 @@ class Bot(discord.Client):
     # TODO: Check safety
     # TODO: Automate import
     # TODO: Maybe only pass utility instance to modules (to restrict access to bot)
-    # TODO: Automatic execution of commands in intervals. Possibly through module and configurable through commands.
     async def load_modules(self):
 
         self.arg_mod_assoc = {}
@@ -89,7 +99,7 @@ class Bot(discord.Client):
                     try:
                         await self.run_module(args[0], args[1:], message)
                     except:
-                        print('Unexpected Error.')
+                        print('Unexpected Module Error.')
                     executed = True
 
                 # Send error message if command is not in cmdList
