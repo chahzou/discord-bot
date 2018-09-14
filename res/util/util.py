@@ -58,7 +58,7 @@ class Utility:
 
     async def print(self, text):
         now = datetime.datetime.now()
-        print('[' + str(now.day) + '. ' + str(now.hour) + ':' + str(now.minute) + '] ' + text)
+        print('[' + str(now.day) + '. ' + f"{now:%H}" + ':' + f"{now:%M}" + '] ' + text)
 
 
     # Sends different help messages depending on second argument
