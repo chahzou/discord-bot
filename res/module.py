@@ -12,7 +12,7 @@ class Module(ABC):
     @property
     def cmd_arg(self):
         raise NotImplementedError
-    
+
 
     @abstractmethod
     def run(self, args=None, message=None):

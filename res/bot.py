@@ -40,16 +40,13 @@ class Bot(discord.Client):
 
         print('Ready! (Logged in as {0}'.format(self.user) + ")")
 
-        def_channel = self.get_channel(self.cfg.general['def_channel_id'])
-        ready_msg = self.cfg.other['ready_msg']
-
-        # Delete last ready message if within 10 messages
-        async for msg in self.logs_from(def_channel, limit=10, reverse=True):
-            if msg.author == self.user and msg.content == ready_msg:
-                await self.delete_message(msg)
-
-        # Send ready message
-        await self.send_message(def_channel, ready_msg)
+        # Run on_ready method in all modules
+        for module in self.arg_mod_assoc.values():
+            try:
+                await getattr(module, 'on_ready')()
+            except:
+                # print(module.cmd_arg + ' has no method on_ready.')
+                pass
 
 
     # Automatically creates instances of all modules which are configured in config and imported
@@ -110,7 +107,7 @@ class Bot(discord.Client):
             # Actions for non-command messages:
 
             # Auto-delete messages in specified channels
-            if message.channel.id in self.cfg.other['channel_ids_to_auto_delete_msgs']:
+            if message.channel.id in self.cfg.other['auto_delete_msgs_channel_ids']:
                 await asyncio.sleep(self.cfg.other['auto_delete_delay_s'])
                 await self.run_module('mgmt', ['delete', 'last', '1', message.author.id, 'silent'], message)
 

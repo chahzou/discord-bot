@@ -1,12 +1,28 @@
 from ..module import Module
 
 
-# TODO: Implement way to make bot-response for delete action optional
 # TODO: Method to delete messages from all channels at once
 class Administration(Module):
 
     cmd_arg = 'mgmt'
     deleted_messages = []   # Temporary storage of deleted messages
+
+
+    async def on_ready(self):
+        
+        # Clear channels
+        for channel_id in self.bot.cfg.other['clear_channel_ids']:
+            channel = self.bot.get_channel(channel_id)
+            await self.clear_channel(channel)
+
+        def_channel = self.bot.get_channel(self.bot.cfg.general['def_channel_id'])
+        ready_msg = self.bot.cfg.other['ready_msg']
+
+        # Delete last ready message within 10 messages
+        await self.delete_message_by_content(def_channel, ready_msg, 10, self.bot.user)
+
+        # Send ready message
+        await self.bot.send_message(def_channel, ready_msg)
 
 
     async def run(self, args=None, message=None):
@@ -146,6 +162,26 @@ class Administration(Module):
         else: 
             await self.bot.send_message(message.channel, "User doesn't have permission to delete these messages.")
             await self.bot.run_module('help', [self.cmd_arg])
+
+
+    # Deletes all messages within a channel
+    # TODO: Check if more messages
+    async def clear_channel(self, channel):
+        await self.bot.purge_from(channel, limit=200)
+        print('Channel cleared: ' + channel.name)
+
+
+    # Delete message by content
+    async def delete_message_by_content(self, channel, content, search_limit=10, user=None):
+        log = self.bot.logs_from(channel, limit=search_limit)
+        async for msg in log:
+            if msg.content == content:
+                if user:
+                    if msg.author == user:
+                        await self.bot.delete_message(msg)
+                else:
+                    await self.bot.delete_message(msg)
+                break
 
 
     async def dump_deleted_messages(self):
