@@ -18,6 +18,7 @@ modules = [
 
 # Other
 other = {
+    'ready_msg_toggle': False,
     'ready_msg': "Now online.",
     'max_msg_len': 10000,
     'max_args': 100,
