@@ -1,4 +1,4 @@
-import sys, re, discord
+import sys, re, discord, asyncio
 
 from .util.util import Utility
 from .config import config
@@ -28,6 +28,7 @@ __all__ = [ basename(f)[:-3] for f in modules if isfile(f) and not f.endswith('_
 #   Consequently the argument list has to be checked to not be an instance of string before accessing via iterator.
 
 
+# TODO: Automatic execution of commands in intervals. Possibly through module and configurable through commands.
 class Bot(discord.Client):
 
     async def on_ready(self):
@@ -38,14 +39,21 @@ class Bot(discord.Client):
         await self.load_modules()
 
         print('Ready! (Logged in as {0}'.format(self.user) + ")")
-        await self.send_message(self.get_channel(self.cfg.general['def_channel_id']), "Now online.")
+
+        # Run on_ready method in all modules
+        for module in self.arg_mod_assoc.values():
+            try:
+                await getattr(module, 'on_ready')()
+            except:
+                # print(module.cmd_arg + ' has no method on_ready.')
+                pass
 
 
     # Automatically creates instances of all modules which are configured in config and imported
     # Also creates dictionary for association of modules with their command argument
     # TODO: Check safety
     # TODO: Automate import
-    # TODO: Maybe only pass only utility instance to modules (to restrict access to bot) ???
+    # TODO: Maybe only pass utility instance to modules (to restrict access to bot)
     async def load_modules(self):
 
         self.arg_mod_assoc = {}
@@ -73,7 +81,10 @@ class Bot(discord.Client):
 
         if len(message.content) <= self.cfg.other['max_msg_len']:
 
+
             if await self.util.is_command(message.content):
+                
+                # Actions for command messages:
 
                 executed = False
 
@@ -82,32 +93,55 @@ class Bot(discord.Client):
                 
                 # Call module specified by first argument
                 if args[0] in self.arg_mod_assoc.keys():                    # If config contains module
-                    await self.run_module(args[0], args[1:], message)
+                    try:
+                        await self.run_module(args[0], args[1:], message)
+                    except:
+                        print('Unexpected Module Error.')
                     executed = True
 
                 # Send error message if command is not in cmdList
                 if not executed or not args[0]:
-                    await self.util.send_error_message(message.channel, "No module for \'" + args[0] + "\' was found or configured.")
+                    await self.util.send_error_message(message.channel, "No module for \'" + args[0] + "\' is configured.")
 
-            # elif: Actions for non-command messages
+
+            # Actions for non-command messages:
+
+            # Auto-delete messages in specified channels
+            if message.channel.id in self.cfg.other['auto_delete_msgs_channel_ids']:
+                await self.util.delete_message_delayed(message)
 
 
     # Call "run" function in specified module and pass message and args if available
     async def run_module(self, mod_arg, args=None, message=None):
 
         # print(mod_arg + " " + str(args))
-
-        if isinstance(mod_arg, str) and mod_arg in self.arg_mod_assoc.keys():
-            if args:
-                if message:
-                    return await getattr(self.arg_mod_assoc[mod_arg], 'run')(args, message)
+            if isinstance(mod_arg, str) and mod_arg in self.arg_mod_assoc.keys():
+                if args:
+                    if message:
+                        try:
+                            return await getattr(self.arg_mod_assoc[mod_arg], 'run')(args, message)
+                        except Exception as e:
+                            self.util.print("Exception when running module: " + self.arg_mod_assoc[mod_arg])
+                            print(e)
+                    else:
+                        try:
+                            return await getattr(self.arg_mod_assoc[mod_arg], 'run')(args)
+                        except Exception as e:
+                            self.util.print("Exception when running module: " + self.arg_mod_assoc[mod_arg])
+                            print(e)
+                elif message:
+                    try:
+                        return await getattr(self.arg_mod_assoc[mod_arg], 'run')(None, message)
+                    except Exception as e:
+                        self.util.print("Exception when running module: " + self.arg_mod_assoc[mod_arg])
+                        print(e)
                 else:
-                    return await getattr(self.arg_mod_assoc[mod_arg], 'run')(args)
-            elif message:
-                return await getattr(self.arg_mod_assoc[mod_arg], 'run')(None, message)
-            else:
-                return await getattr(self.arg_mod_assoc[mod_arg], 'run')()
-
+                    try:
+                        return await getattr(self.arg_mod_assoc[mod_arg], 'run')()
+                    except Exception as e:
+                        self.util.print("Exception when running module: " + self.arg_mod_assoc[mod_arg])
+                        print(e)
+    
 
     # Call "return_help" function in specified module and pass args if available
     async def return_module_help(self, mod_arg, args=None):
@@ -117,3 +151,5 @@ class Bot(discord.Client):
                 return await getattr(self.arg_mod_assoc[mod_arg], 'return_help')(args)
             else:
                 return await getattr(self.arg_mod_assoc[mod_arg], 'return_help')()
+
+    

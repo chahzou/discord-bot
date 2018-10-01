@@ -6,6 +6,7 @@ class Registration(Module):
 
     cmd_arg = 'register'
     registration_role = 'registered'
+    auto_delete_cmd = False
 
 
     async def run(self, args=None, message=None):
@@ -21,8 +22,12 @@ class Registration(Module):
                 def_channel = await self.bot.util.get_default_channel()
 
                 await self.bot.add_roles(user, role)    # Add role
-                await self.bot.send_message(def_channel, "Welcome " + user.mention + ".")   # Send welcome message
-                await self.bot.run_module('mgmt', ['delete', 'last', '1', user.id], message)   # Delete command for this action
+                
+                await self.bot.util.print(user.name + " has been registered.")
+                await self.bot.send_message(def_channel, "Welcome on board, " + user.mention + ". See <#452838050419048448> for information on the server.")   # Send welcome message
+
+                if self.auto_delete_cmd:
+                    await self.bot.run_module('mgmt', ['delete', 'last', '1', user.id, 'silent'], message)   # Delete command for this action
 
 
     async def return_help(self, args=None):

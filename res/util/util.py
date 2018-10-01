@@ -1,4 +1,4 @@
-import re
+import re, datetime, asyncio
 
 
 class Utility:
@@ -28,10 +28,6 @@ class Utility:
         )
 
 
-    async def print_console_error(self, type, content):
-        print('(Error) ' + type + ': ' + content)
-
-
     async def convert_camelcase_to_underscore(self, name):
         s1 = re.sub('(.)([A-Z][a-z]+)', r'\1_\2', name)
         return re.sub('([a-z0-9])([A-Z])', r'\1_\2', s1).lower()
@@ -49,6 +45,39 @@ class Utility:
 
     async def get_default_channel(self):
         return self.bot.get_channel(self.bot.cfg.general['def_channel_id'])
+
+
+    async def is_number(self, str):
+        regex_arg = re.compile('^[0-9]+$')
+        return regex_arg.match(str)
+
+
+    async def print(self, text):
+        now = datetime.datetime.now()
+        print('[' + str(now.day) + '. ' + f"{now:%H}" + ':' + f"{now:%M}" + '] ' + text)
+    
+
+    async def delete_message_delayed(self, message):
+        msg_temp = message
+        await asyncio.sleep(self.bot.cfg.other['auto_delete_delay_s'])
+        await self.bot.delete_message(message)
+        await self.print("Deleted a message in channel: " + msg_temp.channel.name)
+        await self.dump_messages([msg_temp])
+
+
+    async def dump_messages(self, messages):
+        for msg in messages:
+            name = str(msg.author)
+            nick = ""
+            try:
+                nick = " (" + msg.author.nick + ")"
+            except Exception:
+                pass
+            await self.bot.util.print("  " + name + nick + ": '" + msg.content + "'")
+
+
+    async def print_console_error(self, type, content):
+        print('(Error) ' + type + ': ' + content)
 
 
     # Sends different help messages depending on second argument
