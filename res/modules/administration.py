@@ -29,7 +29,6 @@ class Administration(Module):
 
         arg_fct_assoc = {
             'delete':       'delete',
-            'dump_deleted': 'dump_delete_messages',
         }
 
         # Call function associated with second argument
@@ -89,7 +88,6 @@ class Administration(Module):
         # server_wide_arg = 'global'
 
         # Get arguments
-
         if isinstance(args, str):
             tmp_limit = args
         else:
@@ -111,7 +109,6 @@ class Administration(Module):
             # if (server_wide_arg in i for i in args):
             #     server_wide = True
         
-
         # Delete messages
         if message.author.server_permissions.manage_messages or message.author.id == user_id:
             if limit:
@@ -140,7 +137,7 @@ class Administration(Module):
                         await self.bot.send_message(message.channel, "Deleted " + str(len(deleted_messages)) + " message(s) by " + user_id + ".")
 
                     if len(deleted_messages) > 0:
-                        await self.dump_messages(deleted_messages)
+                        await self.bot.util.dump_messages(deleted_messages)
                 
                 # Too many arguments
                 elif len(args) > 2:
@@ -155,7 +152,7 @@ class Administration(Module):
                         await self.bot.send_message(message.channel, "Deleted " + str(len(deleted_messages)) + " message(s).")
 
                     await self.bot.util.print("Deleted " + str(len(deleted_messages)) + " message(s) in " + message.channel.name + ".")
-                    await self.dump_messages(deleted_messages)
+                    await self.bot.util.dump_messages(deleted_messages)
 
             else:
                 await self.bot.send_message(message.channel, "This command requires a limit.")
@@ -171,7 +168,7 @@ class Administration(Module):
         deleted_messages = await self.bot.purge_from(channel, limit=200)
         if len(deleted_messages) > 0:
             await self.bot.util.print("Deleted " + str(len(deleted_messages)) + " message(s) in " + channel.name + ".")
-            await self.dump_messages(deleted_messages)
+            await self.bot.util.dump_messages(deleted_messages)
 
 
     # Delete message by content
@@ -185,15 +182,6 @@ class Administration(Module):
                 else:
                     await self.bot.delete_message(msg)
                 break
-
-
-    async def dump_messages(self, messages):
-        for msg in messages:
-            name = str(msg.author)
-            nick = ""
-            if msg.author.nick:
-                nick = " (" + msg.author.nick + ")"
-            await self.bot.util.print("  " + name + nick + ": '" + msg.content + "'")
 
 
     '''# Counts all messages in the channel the command was sent in
