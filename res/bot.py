@@ -116,31 +116,19 @@ class Bot(discord.Client):
 
         # print(mod_arg + " " + str(args))
             if isinstance(mod_arg, str) and mod_arg in self.arg_mod_assoc.keys():
-                if args:
-                    if message:
-                        try:
+                try:
+                    if args:
+                        if message:
                             return await getattr(self.arg_mod_assoc[mod_arg], 'run')(args, message)
-                        except Exception as e:
-                            self.util.print("Exception when running module: " + self.arg_mod_assoc[mod_arg])
-                            print(e)
-                    else:
-                        try:
+                        else:
                             return await getattr(self.arg_mod_assoc[mod_arg], 'run')(args)
-                        except Exception as e:
-                            self.util.print("Exception when running module: " + self.arg_mod_assoc[mod_arg])
-                            print(e)
-                elif message:
-                    try:
+                    elif message:
                         return await getattr(self.arg_mod_assoc[mod_arg], 'run')(None, message)
-                    except Exception as e:
-                        self.util.print("Exception when running module: " + self.arg_mod_assoc[mod_arg])
-                        print(e)
-                else:
-                    try:
+                    else:
                         return await getattr(self.arg_mod_assoc[mod_arg], 'run')()
-                    except Exception as e:
-                        self.util.print("Exception when running module: " + self.arg_mod_assoc[mod_arg])
-                        print(e)
+                except Exception as e:
+                    self.util.print("Exception when running module: " + self.arg_mod_assoc[mod_arg])
+                    print(e)
     
 
     # Call "return_help" function in specified module and pass args if available
