@@ -93,10 +93,7 @@ class Bot(discord.Client):
                 
                 # Call module specified by first argument
                 if args[0] in self.arg_mod_assoc.keys():                    # If config contains module
-                    try:
-                        await self.run_module(args[0], args[1:], message)
-                    except:
-                        print('Unexpected Module Error.')
+                    await self.run_module(args[0], args[1:], message)
                     executed = True
 
                 # Send error message if command is not in cmdList
@@ -114,21 +111,22 @@ class Bot(discord.Client):
     # Call "run" function in specified module and pass message and args if available
     async def run_module(self, mod_arg, args=None, message=None):
 
-        # print(mod_arg + " " + str(args))
-            if isinstance(mod_arg, str) and mod_arg in self.arg_mod_assoc.keys():
-                try:
-                    if args:
-                        if message:
-                            return await getattr(self.arg_mod_assoc[mod_arg], 'run')(args, message)
-                        else:
-                            return await getattr(self.arg_mod_assoc[mod_arg], 'run')(args)
-                    elif message:
-                        return await getattr(self.arg_mod_assoc[mod_arg], 'run')(None, message)
+        if isinstance(mod_arg, str) and mod_arg in self.arg_mod_assoc.keys():
+            try:
+                if args:
+                    if message:
+                        return await getattr(self.arg_mod_assoc[mod_arg], 'run')(args, message)
                     else:
-                        return await getattr(self.arg_mod_assoc[mod_arg], 'run')()
-                except Exception as e:
-                    self.util.print("Exception when running module: " + self.arg_mod_assoc[mod_arg])
-                    print(e)
+                        return await getattr(self.arg_mod_assoc[mod_arg], 'run')(args)
+                elif message:
+                    return await getattr(self.arg_mod_assoc[mod_arg], 'run')(None, message)
+                else:
+                    return await getattr(self.arg_mod_assoc[mod_arg], 'run')()
+            except Exception as e:
+                self.util.print("Exception when running module: " + self.arg_mod_assoc[mod_arg])
+                if message:
+                    print("Message: " + message.content)
+                print(e)
     
 
     # Call "return_help" function in specified module and pass args if available
