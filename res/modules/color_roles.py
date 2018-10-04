@@ -57,7 +57,7 @@ class ColorRoles(Module):
         for role in user.roles:
             if re.match(self.regex_hex, role.name):      # If role is a colour-role
                 if role.name == colour_hex_name:                # If user already has the colour
-                    await self.bot.send_message(message.channel, "The colour " + colour_hex_name + " was already assigned.")
+                    await self.bot.send_message(message.channel, "The color " + colour_hex_name + " was already assigned.")
                     assigned = True
                 else:
                     await self.bot.remove_roles(user, role)     # Unassign other colours
@@ -79,7 +79,7 @@ class ColorRoles(Module):
 
         # Check if role has been assigned
         if role_to_assign in user.roles:
-            await self.bot.send_message(message.channel, "The colour " + colour_hex_name + " was assigned.")
+            await self.bot.send_message(message.channel, "The color " + colour_hex_name + " was assigned.")
         
         await self.delete_unused_color_roles(message.server)
 
