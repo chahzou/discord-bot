@@ -6,6 +6,7 @@ class Registration(Module):
 
     cmd_arg = 'board'
     registration_roles = ['on-board', 'passengers']
+    about_channel_id = '452838050419048448'
     auto_delete_cmd = False     # Deactivated because auto-delete is already channel-wide
 
     async def run(self, args=None, message=None):
@@ -25,7 +26,7 @@ class Registration(Module):
                     await self.bot.util.print(user.name + " has been registered.")
 
                     # Send welcome message
-                    await self.bot.send_message(def_channel, "Welcome on-board, " + user.mention + ". See <#452838050419048448> for information on the server.")
+                    await self.bot.send_message(def_channel, "Welcome on-board, " + user.mention + ". See <#" + self.about_channel_id + "> for information on the server.")
 
                 except Exception as e:
                     print("Couldn't finish registration. Registration roles: ")
