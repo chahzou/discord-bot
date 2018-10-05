@@ -38,8 +38,9 @@ class Help(Module):
             else:
                 mod_args_str += ", `" + mod_arg + "`"
 
-        return ("The following modules can currently be accessed: " + mod_args_str + "\nUse them with `" 
-            + cmd_op + "` or type `" + cmd_op + "help [module]` for more information on each module.")
+        return ("The following modules can currently be accessed: " + mod_args_str + "\n"
+            "Use them like `" + cmd_op + "[module] [arguments]` "
+            "or type `" + cmd_op + "help [module]` for more information on each module.")
     
 
     async def create_help_for_module(self, mod_arg, args=None):
