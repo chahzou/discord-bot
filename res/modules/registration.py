@@ -39,4 +39,4 @@ class Registration(Module):
 
 
     async def return_help(self, args=None):
-        return "- `" + self.cmd_arg + "`: Assigns the author the registration role."
+        return "`" + self.cmd_arg + "`: Assigns the author the registration role(s)."

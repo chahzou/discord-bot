@@ -34,12 +34,12 @@ class Help(Module):
         mod_args_str = ''
         for mod_arg in self.bot.arg_mod_assoc.keys():
             if not mod_args_str:
-                mod_args_str += "`" + cmd_op + mod_arg + "`"
+                mod_args_str += "`" + mod_arg + "`"
             else:
-                mod_args_str += ", `" + cmd_op + mod_arg + "`"
+                mod_args_str += ", `" + mod_arg + "`"
 
-        return ("The following modules can currently be accessed: " + mod_args_str + "\nUse `" 
-            + cmd_op + "help [module]` for more information on each module.")
+        return ("The following modules can currently be accessed: " + mod_args_str + "\nUse them with `" 
+            + cmd_op + "` or type `" + cmd_op + "help [module]` for more information on each module.")
     
 
     async def create_help_for_module(self, mod_arg, args=None):
@@ -64,4 +64,4 @@ class Help(Module):
 
 
     async def return_help(self, args=None):
-        pass
+        return "Generates the help messages."

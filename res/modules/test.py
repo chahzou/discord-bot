@@ -26,6 +26,6 @@ class Test(Module):
     
 
     async def return_help(self, args=None):
-        return ("`test`: Return test message."
-        "\n`test sleep`: Sleep for 5 seconds, then return test message."
-        "\n`test error`: Return a test-error.")
+        return ("- `test`: Return test message."
+        "\n- `test sleep`: Sleep for 5 seconds, then return test message."
+        "\n- `test error`: Return a test-error.")

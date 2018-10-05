@@ -23,9 +23,9 @@ class ColorRoles(Module):
         
 
     async def return_help(self, args=None):
-        return ("Use a hexadecimal code to set your username color (e.g. `!color #123456`). "
+        return ("- `!color [hex-code]` Use a hexadecimal code to set your username color (e.g. `!color #123456`). "
             "(Note: #000000 is Discord's default color, which varies depending on theme.)")
-
+    
     
     # Gives the author of the command a role with the given color
     async def set_color(self, colour_arg, message):
