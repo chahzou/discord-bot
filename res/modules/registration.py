@@ -6,7 +6,7 @@ class Registration(Module):
 
     cmd_arg = 'board'
     registration_roles = ['on-board', 'passengers']
-    welcome_msg = "Welcome"     # Is followed by ", [user-mention]." and the about message.
+    welcome_msg = "Welcome, "     # Is followed by a user-mention. and the about message.
     about_msg = "See <#497747060880048149> for information on the server."
     auto_delete_cmd = False     # Deactivated because auto-delete is already channel-wide
 
@@ -27,7 +27,7 @@ class Registration(Module):
                     await self.bot.util.print(user.name + " has been registered.")
 
                     # Assemble and send welcome message
-                    msg = self.welcome_msg + ", " + user.mention + ". " + self.about_msg
+                    msg = self.welcome_msg + user.mention + ". " + self.about_msg
                     await self.bot.send_message(def_channel, msg)
 
                 except Exception as e:
