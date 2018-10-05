@@ -57,7 +57,7 @@ class Help(Module):
         mod_name = await self.bot.util.return_name_of_module(mod_arg)
 
         if isinstance(mod_help_str, str):
-            return ("Help for " + mod_name + " (`" + cmd_op + mod_arg + "`):\n" + mod_help_str)
+            return ("Help for " + mod_name + " (`" + mod_arg + "`):\n" + mod_help_str)
         else:
             self.bot.util.print_console_error("Module-Error: ", "Module method 'return_help' in " + 
                 mod_name + " didn't return a string.")
