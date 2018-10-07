@@ -76,6 +76,14 @@ class Bot(discord.Client):
         print("Initialized " + str(count) + " modules.")
 
 
+    # Runs when user leaves a server
+    async def on_member_remove(self, user):
+        def_channel = self.get_channel(self.cfg.general['def_channel_id'])
+        await self.send_message(def_channel, 
+            user.mention + self.cfg.other['leave_msg'])
+        await self.util.print(user.name + " left the server.")
+
+
     # Runs "run" method in specified module
     async def on_message(self, message):
 
