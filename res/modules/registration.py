@@ -25,7 +25,7 @@ class Registration(Module):
                         await self.bot.add_roles(user, role)
                         await self.bot.util.print("Gave " + user.name + " the role " + role.name)
                         
-                    await self.bot.util.print(user.name + " has been registered.")
+                    await self.bot.util.print("User " + user.name + " was registered on " + message.server.name)
 
                     # Assemble and send welcome message
                     def_channel = await self.bot.util.get_default_channel()
@@ -33,7 +33,7 @@ class Registration(Module):
                     await self.bot.send_message(def_channel, msg)
 
                 except Exception as e:
-                    print("Couldn't finish registration. Registration roles: ")
+                    print("Couldn't complete registration. Check the permissions of the bot and registration roles: ")
                     print(*self.registration_roles, sep = ", ")
                     print(e)
                     await self.bot.util.send_error_message(message.channel, "Couldn't complete registration.")
