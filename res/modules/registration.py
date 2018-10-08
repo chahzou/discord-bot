@@ -5,10 +5,11 @@ from ..module import Module
 class Registration(Module):
 
     cmd_arg = 'board'
-    registration_roles = ['registered']
+    registration_roles = ['reg', 'reg2']
     welcome_msg = "Welcome, "     # Is followed by a user-mention. and the about message.
     about_msg = "See <#497747060880048149> for information on the server."
     auto_delete_cmd = False     # Deactivated because auto-delete is already channel-wide
+
 
     async def run(self, args=None, message=None):
 

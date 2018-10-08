@@ -20,7 +20,7 @@ class Administration(Module):
 
     leave_msg_toggle = True
     leave_msg_required_role = 'reg'
-    leave_msg = " left the server.",    # Preceded by the user who left the server.
+    leave_msg = " left the server."    # Preceded by the user who left the server.
 
 
     async def on_ready(self):
@@ -30,7 +30,7 @@ class Administration(Module):
             channel = self.bot.get_channel(channel_id)
             await self.clear_channel(channel)
 
-        def_channel = self.bot.get_channel(self.bot.cfg.general['def_channel_id'])
+        def_channel = await self.bot.util.get_default_channel()
 
         # Send ready message
         if self.ready_msg_toggle:
@@ -225,15 +225,13 @@ class Administration(Module):
     async def send_leave_message(self, member):
         if self.leave_msg_toggle:
 
-            def_channel = self.bot.get_channel(self.bot.cfg.general['def_channel_id'])
+            def_channel = await self.bot.util.get_default_channel()
 
             # Check required role
             if self.leave_msg_required_role:
                 # role = await self.bot.util.get_role_by_name(member.server, self.leave_msg_required_role)
                 for role in member.roles:
                     if role.name == self.leave_msg_required_role:
-                        print(role.name)
-                        # TODO: Check why message isn't sent
                         await self.bot.send_message(def_channel, member.mention + self.leave_msg)
                         await self.bot.util.print(member.name + " left the server.")
             else:
