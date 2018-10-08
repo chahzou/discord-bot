@@ -45,7 +45,6 @@ class Bot(discord.Client):
             try:
                 await getattr(module, 'on_ready')()
             except:
-                # print(module.cmd_arg + ' has no method on_ready.')
                 pass
 
 
@@ -76,12 +75,13 @@ class Bot(discord.Client):
         print("Initialized " + str(count) + " modules.")
 
 
-    # Runs when user leaves a server
-    async def on_member_remove(self, user):
-        def_channel = self.get_channel(self.cfg.general['def_channel_id'])
-        await self.send_message(def_channel, 
-            user.mention + self.cfg.other['leave_msg'])
-        await self.util.print(user.name + " left the server.")
+    # Runs on_member_remove method in all modules
+    async def on_member_remove(self, member):
+        for module in self.arg_mod_assoc.values():
+            try:
+                await getattr(module, 'on_member_remove')(member)
+            except:
+                pass
 
 
     # Runs "run" method in specified module
@@ -89,13 +89,10 @@ class Bot(discord.Client):
 
         if len(message.content) <= self.cfg.other['max_msg_len']:
 
-
+            # Actions for command messages:
             if await self.util.is_command(message.content):
                 
-                # Actions for command messages:
-
                 executed = False
-
                 cmd = message.content[len(self.cfg.general['cmd_op']):]     # Remove operator
                 args = cmd.split(' ', self.cfg.other['max_args'])           # Split command into argument list
                 
@@ -107,13 +104,13 @@ class Bot(discord.Client):
                 # Send error message if command is not in cmdList
                 if not executed or not args[0]:
                     await self.util.send_error_message(message.channel, "No module for \'" + args[0] + "\' is configured.")
-
-
+            
             # Actions for non-command messages:
-
-            # Auto-delete messages in specified channels
-            if message.channel.id in self.cfg.other['auto_delete_msgs_channel_ids']:
-                await self.util.delete_message_delayed(message)
+            for module in self.arg_mod_assoc.values():
+                try:
+                    await getattr(module, 'on_message')(message)
+                except:
+                    pass
 
 
     # Call "run" function in specified module and pass message and args if available

@@ -57,9 +57,9 @@ class Utility:
         print('[' + str(now.day) + '. ' + f"{now:%H}" + ':' + f"{now:%M}" + '] ' + text)
     
 
-    async def delete_message_delayed(self, message):
+    async def delete_message_delayed(self, message, delay):
         msg_temp = message
-        await asyncio.sleep(self.bot.cfg.other['auto_delete_delay_s'])
+        await asyncio.sleep(delay)
         await self.bot.delete_message(message)
         await self.print("Deleted a message in channel " + msg_temp.channel.name)
         await self.dump_messages([msg_temp])

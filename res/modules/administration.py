@@ -6,24 +6,53 @@ class Administration(Module):
 
     cmd_arg = 'mgmt'
 
+    ready_msg_toggle = True
+    ready_msg = "Now online."
+    
+    # Clears messages (unless protected) in channels when the bot starts
+    auto_clear_channel_ids = ['497005261714620418', '497747060880048149']
+    auto_clear_protected_msg_ids = ['498792207562571787']
+
+    # Deletes new messages delayed (unless protected)
+    auto_delete_msgs_channel_ids = ['497005261714620418', '497747060880048149']
+    auto_delete_delay_s = 10
+    auto_delete_protected_msg_ids = ['498792207562571787']
+
+    leave_msg_toggle = True
+    leave_msg_required_role = 'reg'
+    leave_msg = " left the server.",    # Preceded by the user who left the server.
+
 
     async def on_ready(self):
         
         # Clear channels
-        for channel_id in self.bot.cfg.other['clear_channel_ids']:
+        for channel_id in self.auto_clear_channel_ids:
             channel = self.bot.get_channel(channel_id)
             await self.clear_channel(channel)
 
         def_channel = self.bot.get_channel(self.bot.cfg.general['def_channel_id'])
-        ready_msg = self.bot.cfg.other['ready_msg']
 
         # Send ready message
-        if self.bot.cfg.other['ready_msg_toggle']:
+        if self.ready_msg_toggle:
             # Delete last ready message within 10 messages
-            await self.delete_message_by_content(def_channel, ready_msg, 10, self.bot.user)
+            await self.delete_message_by_content(def_channel, self.ready_msg, 10, self.bot.user)
 
-            await self.bot.send_message(def_channel, ready_msg)
+            await self.bot.send_message(def_channel, self.ready_msg)
+    
 
+    async def on_member_remove(self, member):
+        await self.send_leave_message(member)
+    
+
+    async def on_message(self, message):
+        
+        # Auto-delete messages in specified channels
+        if message.channel.id in self.auto_delete_msgs_channel_ids:
+            if message.id in self.auto_delete_protected_msg_ids:
+                pass
+            else:
+                await self.bot.util.delete_message_delayed(message, self.auto_delete_delay_s)
+    
 
     async def run(self, args=None, message=None):
 
@@ -165,7 +194,16 @@ class Administration(Module):
     # Deletes all messages within a channel
     # TODO: Check if more messages
     async def clear_channel(self, channel):
-        deleted_messages = await self.bot.purge_from(channel, limit=200)
+
+        # Check if message is not protected
+        def msg_not_protected(m):
+            if m.id in self.auto_clear_protected_msg_ids: 
+                return False
+            else: 
+                return True
+
+        deleted_messages = await self.bot.purge_from(channel, limit=200, check=msg_not_protected)
+
         if len(deleted_messages) > 0:
             await self.bot.util.print("Deleted " + str(len(deleted_messages)) + " message(s) in " + channel.name + ".")
             await self.bot.util.dump_messages(deleted_messages)
@@ -182,48 +220,23 @@ class Administration(Module):
                 else:
                     await self.bot.delete_message(msg)
                 break
+    
 
+    async def send_leave_message(self, member):
+        if self.leave_msg_toggle:
 
-    '''# Counts all messages in the channel the command was sent in
-    async def count_messages(self, message=None):
-        counter = 0
-        tmp = await client.send_message(message.channel, 'Calculating messages...')
-        async for log in client.logs_from(message.channel, limit=1000):
-            if log.author == message.author:
-                counter += 1
+            def_channel = self.bot.get_channel(self.bot.cfg.general['def_channel_id'])
 
-        await client.edit_message(tmp, 'You have {} messages.'.format(counter))
-
-
-
-    # Display a countdown with an optional event field
-    # - `count-down [ss/mm:ss/hh:mm:ss] [optional: event name]`
-    async def count_down(self, message=None):
-
-        if message is not None:
-
-            time_str = await self.bot.util.get_content_part(message.content, 2, 2)
-
-            event_name = await self.bot.util.get_content_part(message.content, 3, 100)
-            if event_name is None:
-                event_name = ""
-                event_name_until = ""
+            # Check required role
+            if self.leave_msg_required_role:
+                # role = await self.bot.util.get_role_by_name(member.server, self.leave_msg_required_role)
+                for role in member.roles:
+                    if role.name == self.leave_msg_required_role:
+                        print(role.name)
+                        # TODO: Check why message isn't sent
+                        await self.bot.send_message(def_channel, member.mention + self.leave_msg)
+                        await self.bot.util.print(member.name + " left the server.")
             else:
-                event_name = "**"+event_name+"**"
-                event_name_until = " until "+event_name
-
-            time = await self.bot.util.time_str_to_sec(time_str)
-            if time is not None:
-                msg = await self.bot.util.send_message(message.channel, 'Counting: ')
-                counter = time
-
-                while counter > 0:
-                    await self.bot.util.edit_message(msg, "Counting: " + await time_sec_to_str(counter) + event_name_until)
-                    await asyncio.sleep(1)
-                    counter -= 1
-
-                await self.bot.util.edit_message(msg, 'Now! ' + event_name)
-
-            else:
-                await self.bot.util.help_message(message.channel, 'count-down')'''
+                await self.bot.send_message(def_channel, member.mention + self.leave_msg)
+                await self.bot.util.print(member.name + " left the server.")
     
