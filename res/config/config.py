@@ -2,7 +2,7 @@
 general = {
     'cmd_op': '!',
     'name': "",
-    'def_channel_id': '',
+    'def_channel_id': '497005036593872899',
 }
 
 

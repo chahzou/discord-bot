@@ -7,7 +7,7 @@ class Info(Module):
 
     cmd_arg = 'info'
     info_msg = ("This is chahzou's discord bot. \nThe code is public: https://github.com/chahzou/discord-bot. " 
-        "Use `help` for info on how to use.\n")
+        "Use `help` for info on how to use its features.\n")
     
     async def run(self, args=None, message=None):
         if message:

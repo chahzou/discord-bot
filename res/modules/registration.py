@@ -4,11 +4,11 @@ from ..module import Module
 # TODO: Ability to assign registration roles to other users with command
 class Registration(Module):
 
-    cmd_arg = 'board'
+    cmd_arg = 'register'
     registration_roles = ['reg', 'reg2']
     welcome_msg = "Welcome, "     # Is followed by a user-mention. and the about message.
     about_msg = "See <#497747060880048149> for information on the server."
-    auto_delete_cmd = False     # Deactivated because auto-delete is already channel-wide
+    auto_delete_cmd = False
 
 
     async def run(self, args=None, message=None):
