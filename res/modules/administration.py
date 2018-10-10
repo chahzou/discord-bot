@@ -13,7 +13,7 @@ class Administration(Module):
     auto_clear_channel_ids = ['497005261714620418', '497747060880048149']
     auto_clear_protected_msg_ids = ['498792207562571787']
 
-    # Deletes new messages delayed (unless protected)
+    # Deletes new messages in channels delayed (unless protected)
     auto_delete_msgs_channel_ids = ['497005261714620418', '497747060880048149']
     auto_delete_delay_s = 10
     auto_delete_protected_msg_ids = ['498792207562571787']
