@@ -29,28 +29,36 @@ class Registration(Module):
 
                 # Check if user is still member of the server
                 if user in message.server.members:
-                    # Add roles
-                    try:
-                        for role_name in self.registration_roles:
-                            try:
-                                role = await self.bot.util.get_role_by_name(message.server, role_name)
-                                await self.bot.add_roles(user, role)
-                            except Exception as e:
-                                print("Couldn't give " + user.name + " the role " + role_name + " for registration.")
-                                print(e)
-                            
-                        await self.bot.util.print("User " + user.name + " was registered on " + message.server.name)
 
-                        # Assemble and send welcome message
-                        def_channel = await self.bot.util.get_default_channel()
-                        msg = self.welcome_msg + user.mention + ". " + self.about_msg
-                        await self.bot.send_message(def_channel, msg)
+                    # Check if user doesn't have any registration roles yet
+                    if not set([role.name for role in user.roles]).issubset(self.registration_roles):
 
-                    except Exception as e:
-                        print("Couldn't complete registration. Check the permissions of the bot and registration roles: ")
-                        print(*self.registration_roles, sep = ", ")
-                        print(e)
-                        await self.bot.util.send_error_message(message.channel, "Couldn't complete registration.")
+                        # Add roles
+                        try:
+                            for role_name in self.registration_roles:
+                                try:
+                                    role = await self.bot.util.get_role_by_name(message.server, role_name)
+                                    await self.bot.add_roles(user, role)
+                                except Exception as e:
+                                    print("Couldn't give " + user.name + " the role " + role_name + " for registration.")
+                                    print(e)
+                                
+                            await self.bot.util.print("User " + user.name + " was registered on " + message.server.name)
+
+                            # Assemble and send welcome message
+                            def_channel = await self.bot.util.get_default_channel()
+                            msg = self.welcome_msg + user.mention + ". " + self.about_msg
+                            await self.bot.send_message(def_channel, msg)
+
+                        except Exception as e:
+                            print("Couldn't complete registration. Check the permissions of the bot and registration roles: ")
+                            print(*self.registration_roles, sep = ", ")
+                            print(e)
+                            await self.bot.util.send_error_message(message.channel, "Couldn't complete registration.")
+                    
+                    else:
+                        await self.bot.util.print("User " + user.name + " is already registered on " + message.server.name)
+
 
                 # Delete command for this action
                 if self.auto_delete_cmd:
