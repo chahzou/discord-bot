@@ -1,4 +1,4 @@
-import sys, re, discord, asyncio
+import sys, re, discord, asyncio, traceback
 
 from .util.util import Utility
 from .config import config
@@ -127,11 +127,11 @@ class Bot(discord.Client):
                     return await getattr(self.arg_mod_assoc[mod_arg], 'run')(None, message)
                 else:
                     return await getattr(self.arg_mod_assoc[mod_arg], 'run')()
-            except Exception as e:
-                self.util.print("Exception when running module: " + self.arg_mod_assoc[mod_arg])
+            except:
+                await self.util.print("Exception when running module: " + str(self.arg_mod_assoc[mod_arg]))
                 if message:
-                    print("Message: " + message.content)
-                print(e)
+                    print("Input: " + message.content)
+                traceback.print_exc()
     
 
     # Call "return_help" function in specified module and pass args if available
