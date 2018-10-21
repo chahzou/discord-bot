@@ -71,6 +71,8 @@ class Registration(Module):
                                 print(*self.roles, sep = ", ")
                                 print(e)
                                 await self.bot.util.send_error_message(message.channel, "Couldn't complete registration.")
+                        else:
+                            await self.bot.util.print("User " + user.name + " left the server " + message.server.name + " before the registration could be completed.")
                             
                     else:
                         await self.bot.send_message(message.channel, "You are already registered.")
