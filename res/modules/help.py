@@ -16,7 +16,7 @@ class Help(Module):
             if len(args) >= 2 and not isinstance(args, str):
                 help_str = await self.create_help_for_module(args[0], args[1:])
             else:
-                help_str = await self.create_help_for_module(args[0])
+                help_str = await self.create_help_for_module(args)
         else:
             help_str = await self.create_help_general()
 
@@ -44,8 +44,6 @@ class Help(Module):
     
 
     async def create_help_for_module(self, mod_arg, args=None):
-
-        cmd_op = self.bot.cfg.general['cmd_op']
 
         mod_help_str = ''
 

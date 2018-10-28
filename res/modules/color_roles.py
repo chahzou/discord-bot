@@ -12,13 +12,17 @@ class ColorRoles(Module):
 
     async def run(self, args=None, message=None):
 
-        if args and message:
-            if isinstance(args, str):       # Only one argument (list sometimes becomes string when passed as argument)
-                await self.set_color(args, message)
-            elif len(args) == 1:
-                await self.set_color(args[0], message)
+        if message:
+            if args:
+                if isinstance(args, str):       # Only one argument (list sometimes becomes string when passed as argument)
+                    await self.set_color(args, message)
+                elif len(args) == 1:
+                    await self.set_color(args[0], message)
+                else:
+                    await self.bot.send_message(message.channel, "Too many arguments.")
+                    await self.bot.run_module('help', self.cmd_arg, message)
             else:
-                await self.bot.send_message(message.channel, "Too many arguments.")
+                await self.bot.send_message(message.channel, "No arguments given.")
                 await self.bot.run_module('help', self.cmd_arg, message)
         
 
