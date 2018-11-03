@@ -100,7 +100,6 @@ class Administration(Module):
             await self.bot.run_module('help', [self.cmd_arg])
 
 
-
     # Deletes a specific number of messages, optionally by specific user
     #   1: limit, 2: user, 3: silent
     # TODO: Delete from all channels if additional argument 'global' is given (difficult)
@@ -192,24 +191,39 @@ class Administration(Module):
             await self.bot.run_module('help', [self.cmd_arg])
 
 
-    # Prune members
-    # TODO
+    # Prune members who did not write a message in a specified number of days
+    # TODO: Implement
     async def prune(self, args, message):
-        days_inactive = None
-        if isinstance(args, str):
-            days_inactive = args
-        elif isinstance(args, list) and args[0]:
-            days_inactive = args[0]
 
-        silent = False
-        if not isinstance(args, str) and args[1]:
-            if args[1] == 'silent':
-                silent = True
-        
-        # Check inactive days for all users
-        for member in message.server.members:
-            # Get latest message
-            pass
+        # Check user rights: Kick Members
+        if message.author.server_permissions.kick_members:
+
+            days_inactive = None
+            silent = False
+
+            if args:
+                if isinstance(args, str):
+                    days_inactive = args
+                elif isinstance(args, list) and args[0]:
+                    days_inactive = args[0]
+
+                if not isinstance(args, str) and args[1]:
+                    if args[1] == 'silent':
+                        silent = True
+            
+            # Check inactive days for all users
+            if days_inactive:
+                count = 0
+                for member in message.server.members:
+                    # Get latest message
+                    
+                    pass
+
+            else:
+                await self.bot.run_module('help', [self.cmd_arg])
+
+        else:
+            await self.bot.util.send_message(message.channel, "User doesn't have permission to kick members.")
 
 
     # Deletes all messages within a channel

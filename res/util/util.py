@@ -78,6 +78,12 @@ class Utility:
 
     async def print_console_error(self, type, content):
         print('(Error) ' + type + ': ' + content)
+    
+
+    # TODO
+    async def get_latest_message_by_user(self, server, user):
+
+        pass
 
 
     # Sends different help messages depending on second argument
