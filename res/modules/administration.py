@@ -58,6 +58,7 @@ class Administration(Module):
 
         arg_fct_assoc = {
             'delete':       'delete',
+            'prune':        'prune',
         }
 
         # Call function associated with second argument
@@ -191,8 +192,28 @@ class Administration(Module):
             await self.bot.run_module('help', [self.cmd_arg])
 
 
+    # Prune members
+    # TODO
+    async def prune(self, args, message):
+        days_inactive = None
+        if isinstance(args, str):
+            days_inactive = args
+        elif isinstance(args, list) and args[0]:
+            days_inactive = args[0]
+
+        silent = False
+        if not isinstance(args, str) and args[1]:
+            if args[1] == 'silent':
+                silent = True
+        
+        # Check inactive days for all users
+        for member in message.server.members:
+            # Get latest message
+            pass
+
+
     # Deletes all messages within a channel
-    # TODO: Check if more messages
+    # TODO: Check for more than 200 messages
     async def clear_channel(self, channel):
 
         # Check if message is not protected
@@ -207,7 +228,7 @@ class Administration(Module):
         if len(deleted_messages) > 0:
             await self.bot.util.print("Deleted " + str(len(deleted_messages)) + " message(s) in " + channel.name + ".")
             await self.bot.util.dump_messages(deleted_messages)
-
+    
 
     # Delete message by content
     async def delete_message_by_content(self, channel, content, search_limit=10, user=None):
