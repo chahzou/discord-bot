@@ -55,6 +55,7 @@ class Registration(Module):
                                     try:
                                         role = await self.bot.util.get_role_by_name(message.server, role_name)
                                         await self.bot.add_roles(user, role)
+                                        await asyncio.sleep(0.5)
                                     except Exception as e:
                                         print("Couldn't give " + user.name + " the role " + role_name + " for registration.")
                                         print(e)
