@@ -46,8 +46,8 @@ class Registration(Module):
                             await asyncio.sleep(self.delay * 0.1)
 
                         # Proceed with registration
-                        # Check if user is still member of the server
-                        if user in message.server.members:
+                        # Check if user is still member of the server and hasn't registration roles yet
+                        if user in message.server.members and not set(self.roles).issubset([role.name for role in user.roles]):
 
                             # Add roles
                             try:
