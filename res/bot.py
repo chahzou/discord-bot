@@ -103,7 +103,7 @@ class Bot(discord.Client):
 
                 # Send error message if command is not in cmdList
                 if not executed or not args[0]:
-                    await self.util.send_error_message(message.channel, "No module for \'" + args[0] + "\' is configured.")
+                    await self.util.send_error_message(message.channel, "No module for `" + args[0] + "` is configured.")
             
             # Actions for non-command messages:
             for module in self.arg_mod_assoc.values():

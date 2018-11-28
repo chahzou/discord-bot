@@ -24,7 +24,8 @@ class Utility:
     async def send_error_message(self, channel, content):
         await self.bot.send_message(
             channel, 
-            "Error: " + content + "\nType `!help [command]` to list all possible commands or add a command to get more information."
+            "Error: " + content + "\n" + 
+                "Type `!help [command]` to list all possible commands or to get information on a particular command."
         )
 
 
