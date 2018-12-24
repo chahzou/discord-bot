@@ -268,8 +268,8 @@ class Administration(Module):
                 for role in member.roles:
                     if role.name == self.leave_msg_required_role:
                         await self.bot.send_message(def_channel, member.mention + self.leave_msg)
-                        await self.bot.util.print(member.name + " left the server.")
+                        await self.bot.util.print(member.name + " left the server " + member.server.name + ".")
             else:
                 await self.bot.send_message(def_channel, member.mention + self.leave_msg)
-                await self.bot.util.print(member.name + " left the server.")
+                await self.bot.util.print(member.name + " left the server " + member.server.name + ".")
     
