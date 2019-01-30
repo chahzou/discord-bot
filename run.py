@@ -7,15 +7,20 @@ from res.config import _access
 
 
 # Run
-def run_client(client, token):
-    loop = asyncio.get_event_loop()
-    while True:
-        try:
-            loop.run_until_complete(client.start(token))
-        except Exception as e:
-            print("Error", e)
-        time.sleep(30)
-        print("Attempting to restart.")
+while True:
 
-client = Bot()
-run_client(client, _access.token)
+    asyncio.set_event_loop(asyncio.new_event_loop())
+    client = Bot()
+    # loop = asyncio.get_event_loop()
+
+    try:
+        # loop.run_until_complete(client.run(_access.token))
+        client.run(_access.token)
+        
+    except Exception as e:
+        print("Error", e)
+        client.close()
+
+    time.sleep(5)
+    print("Attempting to restart.")
+
