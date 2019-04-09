@@ -13,7 +13,7 @@ class Help(Module):
         help_str = ""
 
         if args:
-            if len(args) >= 2 and not isinstance(args, str):
+            if not isinstance(args, str):
                 help_str = await self.create_help_for_module(args[0], args[1:])
             else:
                 help_str = await self.create_help_for_module(args)
@@ -51,13 +51,13 @@ class Help(Module):
             mod_help_str = await self.bot.return_module_help(mod_arg, args)
         else:
             mod_help_str = await self.bot.return_module_help(mod_arg)
-        
+
         mod_name = await self.bot.util.return_name_of_module(mod_arg)
 
         if isinstance(mod_help_str, str):
             return ("Help for " + mod_name + " (`" + mod_arg + "`):\n" + mod_help_str)
         else:
-            self.bot.util.print_console_error("Module-Error: ", "Module method 'return_help' in " + 
+            await self.bot.util.print_console_error("Module-Error: ", "Module method 'return_help' in " + 
                 mod_name + " didn't return a string.")
         pass
 

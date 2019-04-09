@@ -35,7 +35,10 @@ class Utility:
     
 
     async def return_name_of_module(self, mod_arg):
-        return type(self.bot.arg_mod_assoc[mod_arg]).__name__
+        if isinstance(mod_arg, str):
+            if self.bot.arg_mod_assoc[mod_arg]:
+                return type(self.bot.arg_mod_assoc[mod_arg]).__name__
+        return ''
 
 
     async def get_role_by_name(self, server, role_name):
