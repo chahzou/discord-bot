@@ -79,7 +79,7 @@ class Administration(Module):
 
 
     async def return_help(self, args=None):
-        return ("- `delete last [n (max=200)] [optional: user-id] [optional: 'silent']`: Deletes the last n messages, optionally by a user, if the author has the required rights. (The user-id can be copied by right-clicking on a user when in dev mode.)"
+        return ("- `delete last [n (max=200)] [optional: user-id] [optional: 'silent']`: Deletes the last n messages in a channel (optionally by a user) if the author has the required rights. (The user-id can be copied by right-clicking on a user when in dev mode.)"
             "")
 
 
