@@ -1,7 +1,6 @@
 from ..module import Module
 
 
-# TODO: Method to delete messages from all channels at once
 class Administration(Module):
 
     cmd_arg = 'mgmt'
@@ -9,51 +8,33 @@ class Administration(Module):
     ready_msg_toggle = True
     ready_msg = "Now online."
     
-    # Clears messages (unless protected) in channels when the bot starts
-    auto_clear_channel_ids = ['497005261714620418', '497747060880048149']
-    auto_clear_protected_msg_ids = ['498792207562571787']
+    # Channels to clear messages (unless protected) when the bot starts
+    auto_clear_channel_ids = [497005261714620418]
+    auto_clear_protected_msg_ids = [573806480113795072]
 
-    # Deletes new messages in channels delayed (unless protected)
-    auto_delete_msgs_channel_ids = ['497005261714620418', '497747060880048149']
+    # Channels to auto delete messages delayed (unless protected)
+    auto_delete_msgs_channel_ids = [497005261714620418]
     auto_delete_delay_s = 10
-    auto_delete_protected_msg_ids = ['498792207562571787']
+    auto_delete_protected_msg_ids = [573806480113795072]
 
     leave_msg_toggle = True
     leave_msg_required_role = 'reg'
-    leave_msg = " left the server."    # Preceded by the user who left the server.
+    leave_msg = " left the guild."    # Preceded by the user who left the guild.
 
 
     async def on_ready(self):
-        
-        # Clear channels
-        for channel_id in self.auto_clear_channel_ids:
-            channel = self.bot.get_channel(channel_id)
-            await self.clear_channel(channel)
+        await self.clear_channels()
+        await self.send_ready_message()
 
-        def_channel = await self.bot.util.get_default_channel()
-
-        # Send ready message
-        if self.ready_msg_toggle:
-            # Delete last ready message within 10 messages
-            await self.delete_message_by_content(def_channel, self.ready_msg, 10, self.bot.user)
-
-            await self.bot.send_message(def_channel, self.ready_msg)
-    
 
     async def on_member_remove(self, member):
         await self.send_leave_message(member)
     
 
     async def on_message(self, message):
-        
-        # Auto-delete messages in specified channels
-        if message.channel.id in self.auto_delete_msgs_channel_ids:
-            if message.id in self.auto_delete_protected_msg_ids:
-                pass
-            else:
-                await self.bot.util.delete_message_delayed(message, self.auto_delete_delay_s)
-    
+        await self.auto_delete_messages(message)
 
+    
     async def run(self, args=None, message=None):
 
         arg_fct_assoc = {
@@ -70,7 +51,7 @@ class Administration(Module):
                     else:
                         await getattr(self, arg_fct_assoc[args[0]])(None, message)
                 else:
-                    await self.bot.send_message(message.channel, "Command `" + args[0] + "` isn't available.")
+                    await self.bot.send(message.channel, "Command `" + args[0] + "` isn't available.")
                     await self.bot.run_module('help', [self.cmd_arg], message)
             else:
                 await self.bot.run_module('help', [self.cmd_arg], message)
@@ -78,9 +59,47 @@ class Administration(Module):
             await self.bot.run_module('help', [self.cmd_arg])
 
 
+    # TODO: update prune
     async def return_help(self, args=None):
         return ("- `delete last [n (max=200)] [optional: user-id] [optional: 'silent']`: Deletes the last n messages in a channel (optionally by a user) if the author has the required rights. (The user-id can be copied by right-clicking on a user when in dev mode.)"
             "")
+
+
+    # Clear channels
+    async def clear_channels(self):
+
+        for channel_id in self.auto_clear_channel_ids:
+
+            channel = self.bot.get_channel(channel_id)
+            
+            def not_protected(m):
+                return not m.id in self.auto_clear_protected_msg_ids
+
+            await channel.purge(limit=1000, check=not_protected)
+
+
+    # Send ready message and delete last ready message
+    async def send_ready_message(self):
+
+        def_channel = await self.bot.util.get_default_channel()
+        
+        if self.ready_msg_toggle:
+            def is_ready_msg(m):
+                return m.content == self.ready_msg
+
+            await def_channel.purge(limit=10, check=is_ready_msg)
+
+            await def_channel.send(self.ready_msg)
+
+
+    # Auto-delete messages in specified channels
+    async def auto_delete_messages(self, message):
+
+        if message.channel.id in self.auto_delete_msgs_channel_ids:
+            if message.id in self.auto_delete_protected_msg_ids:
+                pass
+            else:
+                await self.bot.util.delete_message_delayed(message, self.auto_delete_delay_s)
 
 
     # Executes different delete functions depending on third argument
@@ -94,7 +113,7 @@ class Administration(Module):
             if args[0] in arg_fct_assoc.keys():    # If command is registered
                 await getattr(self, arg_fct_assoc[args[0]])(args[1:], message)
             else:
-                await self.bot.send_message(message.channel, "Command `" + args[0] + "` isn't available.")
+                await self.bot.send(message.channel, "Command `" + args[0] + "` isn't available.")
                 await self.bot.run_module('help', [self.cmd_arg], message)
         else:
             await self.bot.run_module('help', [self.cmd_arg])
@@ -113,8 +132,8 @@ class Administration(Module):
         send_response = True
         silent_arg = 'silent'
 
-        # server_wide = False
-        # server_wide_arg = 'global'
+        # guild_wide = False
+        # guild_wide_arg = 'global'
 
         # Get arguments
         if isinstance(args, str):
@@ -135,11 +154,11 @@ class Administration(Module):
 
             if (silent_arg in i for i in args):
                 send_response = False
-            # if (server_wide_arg in i for i in args):
-            #     server_wide = True
+            # if (guild_wide_arg in i for i in args):
+            #     guild_wide = True
         
         # Delete messages
-        if message.author.server_permissions.manage_messages or message.author.id == user_id:
+        if message.author.guild_permissions.manage_messages or message.author.id == user_id:
             if limit:
 
                 deleted_messages = []
@@ -155,7 +174,7 @@ class Administration(Module):
                     # Limit for purge function only applies to amount of messages checked, not deleted (TODO: Could be a bug that got fixed!)
                     # This loop repeats the purge function while increasing the amount of messages checked depending on how many messages were skipped
                     while len(deleted_messages) < limit and tmp_limit <= max_limit:
-                        tmp_deleted_messages = await self.bot.purge_from(message.channel, limit=tmp_limit, check=is_user)
+                        tmp_deleted_messages = await message.channel.purge(limit=tmp_limit, check=is_user)
                         
                         deleted_messages += tmp_deleted_messages
 
@@ -163,31 +182,31 @@ class Administration(Module):
                         tmp_limit = amount_skipped + limit - len(deleted_messages)
 
                     if send_response:
-                        await self.bot.send_message(message.channel, "Deleted " + str(len(deleted_messages)) + " message(s) by " + user_id + ".")
+                        await message.channel.send("Deleted " + str(len(deleted_messages)) + " message(s) by " + user_id + ".")
 
                     if len(deleted_messages) > 0:
                         await self.bot.util.dump_messages(deleted_messages)
                 
                 # Too many arguments
                 elif len(args) > 2:
-                    await self.bot.send_message("Too many arguments. Make sure to use the user-id, not the name of the user.")
+                    await message.channel.send("Too many arguments. Make sure to use the user-id, not the name of the user.")
                     await self.bot.run_module('help', self.cmd_arg)
                 
                 # By anyone
                 else:
-                    deleted_messages = await self.bot.purge_from(message.channel, limit=limit)
+                    deleted_messages = await message.channel.purge(limit=limit)
 
                     if send_response:
-                        await self.bot.send_message(message.channel, "Deleted " + str(len(deleted_messages)) + " message(s).")
+                        await message.channel.send("Deleted " + str(len(deleted_messages)) + " message(s).")
 
                     await self.bot.util.print("Deleted " + str(len(deleted_messages)) + " message(s) in " + message.channel.name + ".")
                     await self.bot.util.dump_messages(deleted_messages)
 
             else:
-                await self.bot.send_message(message.channel, "This command requires a limit.")
+                await message.channel.send("This command requires a limit.")
                 await self.bot.run_module('help', self.cmd_arg)
         else: 
-            await self.bot.send_message(message.channel, "User doesn't have permission to delete these messages.")
+            await message.channel.send("User doesn't have permission to delete these messages.")
             await self.bot.run_module('help', [self.cmd_arg])
 
 
@@ -196,34 +215,78 @@ class Administration(Module):
     async def prune(self, args, message):
 
         # Check user rights: Kick Members
-        if message.author.server_permissions.kick_members:
-
-            days_inactive = None
-            silent = False
-
-            if args:
-                if isinstance(args, str):
-                    days_inactive = args
-                elif isinstance(args, list) and args[0]:
-                    days_inactive = args[0]
-
-                if not isinstance(args, str) and args[1]:
-                    if args[1] == 'silent':
-                        silent = True
+        if message.author.guild_permissions.kick_members:
             
-            # Check inactive days for all users
-            if days_inactive:
-                count = 0
-                for member in message.server.members:
-                    # Get latest message
-                    
-                    pass
+            prune_type = ''
+            check_only = True
+            days_inactive = None
+            
+
+            # Set arguments
+            if args:
+
+                if isinstance(args, str):
+                    await self.bot.run_module('help', [self.cmd_arg])
+
+                elif not isinstance(args, str) and isinstance(args, list) and args[0]:
+
+                    if args[0] == 'login':
+                        prune_type = 'login'
+                        if len(args) >= 2:
+                            if isinstance(args, list) and args[1]:
+                                days_inactive = args[1]
+                                if len(args) >= 3:
+                                    if isinstance(args, list) and args[2]:
+                                        if args[2] == 'proceed':
+                                            check_only = False
+
+                    elif args[0] == 'message':
+                        prune_type = 'message'
+                        if len(args) >= 2:
+                            if isinstance(args, list) and args[1]:
+                                days_inactive = args[1]
+                                if len(args) >= 3:
+                                    if isinstance(args, list) and args[2]:
+                                        if args[2] == 'proceed':
+                                            check_only = False
 
             else:
                 await self.bot.run_module('help', [self.cmd_arg])
+            
+            print(prune_type, check_only, days_inactive)
+
+            if prune_type == 'login':
+                
+                    # Log user count to prune
+                if check_only:
+                    await message.guild.estimate_pruned_members(days_inactive)
+
+                    # Kick users
+                elif check_only is False:
+                    await message.guild.prune_members(days_inactive)
+
+            '''
+            elif prune_type == 'message':
+
+                # Check inactive days for all users
+                if days_inactive:
+
+                    # Get log until latest message is found for each user
+                    all_members_checked = False
+
+                    for member in message.guild.members:
+                        pass
+
+                    if check_only:
+                        # Log users
+
+                    else:
+                            # Kick users
+                        pass
+               '''
 
         else:
-            await self.bot.util.send_message(message.channel, "User doesn't have permission to kick members.")
+            await self.bot.util.send(message.channel, "No permission to kick members.")
 
 
     # Deletes all messages within a channel
@@ -244,19 +307,6 @@ class Administration(Module):
             await self.bot.util.dump_messages(deleted_messages)
     
 
-    # Delete message by content
-    async def delete_message_by_content(self, channel, content, search_limit=10, user=None):
-        log = self.bot.logs_from(channel, limit=search_limit)
-        async for msg in log:
-            if msg.content == content:
-                if user:
-                    if msg.author == user:
-                        await self.bot.delete_message(msg)
-                else:
-                    await self.bot.delete_message(msg)
-                break
-    
-
     async def send_leave_message(self, member):
         if self.leave_msg_toggle:
 
@@ -264,12 +314,12 @@ class Administration(Module):
 
             # Check required role
             if self.leave_msg_required_role:
-                # role = await self.bot.util.get_role_by_name(member.server, self.leave_msg_required_role)
+                # role = await self.bot.util.get_role_by_name(member.guild, self.leave_msg_required_role)
                 for role in member.roles:
                     if role.name == self.leave_msg_required_role:
-                        await self.bot.send_message(def_channel, member.mention + self.leave_msg)
-                        await self.bot.util.print(member.name + " left the server " + member.server.name + ".")
+                        await self.bot.send(def_channel, member.mention + self.leave_msg)
+                        await self.bot.util.print(member.name + " left the guild " + member.guild.name + ".")
             else:
-                await self.bot.send_message(def_channel, member.mention + self.leave_msg)
-                await self.bot.util.print(member.name + " left the server " + member.server.name + ".")
+                await self.bot.send(def_channel, member.mention + self.leave_msg)
+                await self.bot.util.print(member.name + " left the guild " + member.guild.name + ".")
     

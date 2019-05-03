@@ -15,14 +15,14 @@ class Test(Module):
 
             if args[0] == 'sleep':
                 await asyncio.sleep(5)
-                await self.bot.send_message(message.channel, 'Done sleeping :O')
+                await message.channel.send('Done sleeping :O')
             elif args[0] == 'error':
-                await self.bot.util.error_message(message.channel, "Test-Error")
+                await self.bot.util.send_error_message(message.channel, "Test-Error")
                 
             # Add other test options here
 
         else:
-            await self.bot.send_message(message.channel, "It worked.")
+            await message.channel.send("It worked.")
     
 
     async def return_help(self, args=None):
@@ -35,7 +35,7 @@ class Test(Module):
     '''# Counts all messages in the channel the command was sent in
     async def count_messages(self, message=None):
         counter = 0
-        tmp = await client.send_message(message.channel, 'Calculating messages...')
+        tmp = await message.channel.send('Calculating messages...')
         async for log in client.logs_from(message.channel, limit=1000):
             if log.author == message.author:
                 counter += 1
@@ -62,7 +62,7 @@ class Test(Module):
 
             time = await self.bot.util.time_str_to_sec(time_str)
             if time is not None:
-                msg = await self.bot.util.send_message(message.channel, 'Counting: ')
+                msg = await message.channel.send('Counting: ')
                 counter = time
 
                 while counter > 0:

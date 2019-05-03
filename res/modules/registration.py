@@ -8,7 +8,7 @@ class Registration(Module):
 
     cmd_arg = 'register'
     
-    channel_ids = ["497005261714620418"]
+    channel_ids = [497005261714620418]
     roles = ['reg', 'reg2']
 
     delay = 3
@@ -16,7 +16,7 @@ class Registration(Module):
     delay_msg_late = ""
 
     welcome_msg = "Welcome, "     # Is followed by a user-mention. and the about message.
-    about_msg = "See <#497747060880048149> for information on the server."
+    about_msg = "See <#497747060880048149> for information on the guild."
     auto_delete_cmd = False
 
     ongoing = []
@@ -30,7 +30,7 @@ class Registration(Module):
                 self.bot.run_module('help', [self.cmd_arg], message)
 
             else:
-
+                
                 if message.channel.id in self.channel_ids:
 
                     user = message.author
@@ -47,35 +47,36 @@ class Registration(Module):
                             if self.delay >= 0:
 
                                 if self.delay_msg_pre:
-                                    await self.bot.send_message(message.channel, self.delay_msg_pre)
+                                    await message.channel.send(self.delay_msg_pre)
                                 await asyncio.sleep(self.delay * 0.9)
                                 
                                 if self.delay_msg_late:
-                                    await self.bot.send_message(message.channel, self.delay_msg_late)
+                                    await message.channel.send(self.delay_msg_late)
                                 await asyncio.sleep(self.delay * 0.1)
 
                             # Proceed with registration
-                            # Check if user is still member of the server and hasn't registration roles yet
-                            if user in message.server.members and not set(self.roles).issubset([role.name for role in user.roles]):
+                            # Check if user is still member of the guild and hasn't registration roles yet
+                            if user in message.guild.members and not set(self.roles).issubset([role.name for role in user.roles]):
 
                                 # Add roles
                                 try:
                                     for role_name in self.roles:
                                         try:
-                                            role = await self.bot.util.get_role_by_name(message.server, role_name)
-                                            await self.bot.add_roles(user, role)
+                                            role = await self.bot.util.get_role_by_name(message.guild, role_name)
+                                            await user.add_roles(role)
                                             await asyncio.sleep(0.5)
                                         except Exception as e:
                                             print("Couldn't assign " + user.name + " the role " + role_name + " for registration.")
                                             print(e)
                                         
-                                    await self.bot.util.print("User " + user.name + " was registered on " + message.server.name)
+                                    await self.bot.util.print("User " + user.name + " was registered on " + message.guild.name)
                                     self.ongoing.remove(user)
 
                                     # Assemble and send welcome message
-                                    def_channel = await self.bot.util.get_default_channel()
-                                    msg = self.welcome_msg + user.mention + ". " + self.about_msg
-                                    await self.bot.send_message(def_channel, msg)
+                                    if set(self.roles).issubset([role.name for role in user.roles]):
+                                        def_channel = await self.bot.util.get_default_channel()
+                                        msg = self.welcome_msg + user.mention + ". " + self.about_msg
+                                        await def_channel.send(msg)
 
                                 except Exception as e:
                                     print("Couldn't complete registration. Check the permissions of the bot and registration roles: ")
@@ -83,15 +84,15 @@ class Registration(Module):
                                     print(e)
                                     await self.bot.util.send_error_message(message.channel, "Couldn't complete registration.")
                             else:
-                                await self.bot.util.print("User " + user.name + " left the server " + message.server.name + " before the registration could be completed.")
+                                await self.bot.util.print("User " + user.name + " left the guild " + message.guild.name + " before the registration could be completed.")
 
                         else:
-                            await self.bot.send_message(message.channel, "You are already being registered.")
-                            await self.bot.util.print("User " + user.name + " tried registering while registration was ongoing in " + message.server.name)
+                            await message.channel.send("You are already being registered.")
+                            await self.bot.util.print("User " + user.name + " tried registering while registration was ongoing in " + message.guild.name)
 
                     else:
-                        await self.bot.send_message(message.channel, "You are already registered.")
-                        await self.bot.util.print("User " + user.name + " tried registering while already being registered on " + message.server.name)
+                        await message.channel.send("You are already registered.")
+                        await self.bot.util.print("User " + user.name + " tried registering while already being registered on " + message.guild.name)
                 
                 else:
                     await self.bot.util.print("Registration ignored because it is not in a specified channel.")

@@ -2,7 +2,6 @@ import re, asyncio, discord
 from ..module import Module
 
 
-# TODO: Fix/Update
 # TODO: Method to sort colour-roles by name
 class ColorRoles(Module):
 
@@ -19,10 +18,10 @@ class ColorRoles(Module):
                 elif len(args) == 1:
                     await self.set_color(args[0], message)
                 else:
-                    await self.bot.send_message(message.channel, "Too many arguments.")
+                    await message.channel.send("Too many arguments.")
                     await self.bot.run_module('help', self.cmd_arg, message)
             else:
-                await self.bot.send_message(message.channel, "No arguments given.")
+                await message.channel.send("No arguments given.")
                 await self.bot.run_module('help', self.cmd_arg, message)
         
 
@@ -46,11 +45,11 @@ class ColorRoles(Module):
             if re.match(self.regex_hex, colour_arg):     # Check if given argument is hex code, otherwise send help message
                 colour = discord.Colour(int(colour_arg[1:], 16))
                 if colour.value == 0:
-                    await self.bot.send_message(message.channel, "Note: #000000 is Discord's default color, which varies depending on theme.")
+                    await message.channel.send("Note: #000000 is Discord's default color, which varies depending on theme.")
                 colour_hex_name = colour_arg
 
             else:
-                await self.bot.send_message(message.channel, "Argument isn't a hexadecimal code.")
+                await message.channel.send("Argument isn't a hexadecimal code.")
                 await self.bot.run_module('help', self.cmd_arg, message)
 
         else:
@@ -61,36 +60,36 @@ class ColorRoles(Module):
         for role in user.roles:
             if re.match(self.regex_hex, role.name):      # If role is a colour-role
                 if role.name == colour_hex_name:                # If user already has the colour
-                    await self.bot.send_message(message.channel, "The color " + colour_hex_name + " was already assigned.")
+                    await message.channel.send("The color " + colour_hex_name + " was already assigned.")
                     assigned = True
                 else:
-                    await self.bot.remove_roles(user, role)     # Unassign other colours
+                    await user.remove_roles(role)     # Unassign other colours
 
 
         if not assigned:
-            for role in message.server.roles:           # Check if colour-role already exists
+            for role in message.guild.roles:           # Check if colour-role already exists
                 if role.name == colour_hex_name:
                     role_to_assign = role
 
             if role_to_assign == None:                  # Otherwise create new role
-                role_to_assign = await self.bot.create_role(message.server, name=colour_hex_name, colour=colour)
-                # await self.bot.move_role(message.server, role_to_assign, len(message.server.roles) - 1)     # TODO: Check position
+                role_to_assign = await message.guild.create_role(name=colour_hex_name, colour=colour)
+                # await self.bot.move_role(message.guild, role_to_assign, len(message.guild.roles) - 1)     # TODO: Check position
         
             # Assign the role
-            await self.bot.add_roles(user, role_to_assign)
+            await user.add_roles(role_to_assign)
             await asyncio.sleep(1)                      # Wait 1 second to finish assigning role; TODO: Check if guaranteed solution
 
 
         # Check if role has been assigned
         if role_to_assign in user.roles:
-            await self.bot.send_message(message.channel, "The color " + colour_hex_name + " was assigned.")
+            await message.channel.send("The color " + colour_hex_name + " was assigned.")
         
-        await self.delete_unused_color_roles(message.server)
+        await self.delete_unused_color_roles(message.guild)
 
 
         # Original role position assignment:
         #   Use position beneath "bot" role position and add to message author
-        '''for role in message.server.roles:       # Iteration through server roles:
+        '''for role in message.guild.roles:       # Iteration through guild roles:
 
             if role.name == 'bot':                  # Get "bot" role (for hierarchy reference)
                 if role.position > 1:
@@ -100,18 +99,18 @@ class ColorRoles(Module):
 
 
     # Delete all roles with the name of a hexcode which are not assigned to a user
-    async def delete_unused_color_roles(self, server):
+    async def delete_unused_color_roles(self, guild):
 
-        for role in server.roles:
+        for role in guild.roles:
             if re.match(self.regex_hex, role.name):              # If role name is hex code
 
                 used = False
 
-                for member in server.members:               # Iteration of members
+                for member in guild.members:               # Iteration of members
                     for member_role in member.roles:            # Iteration of roles of each member
                         if member_role == role:
                             used = True                             # when a member has the role -> role is used
 
                 if not used:
-                    await self.bot.delete_role(server, role)      # delete the role if it's not used
+                    await role.delete()      # delete the role if it's not used
     

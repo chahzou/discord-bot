@@ -22,9 +22,9 @@ class Help(Module):
 
         # Send help message
         if message:
-            await self.bot.send_message(message.channel, help_str)
+            await message.channel.send(help_str)
         else:
-            await self.bot.send_message(self.bot.get_channel(self.bot.cfg.general['def_channel_id']), help_str)
+            await self.bot.get_channel(self.bot.cfg.general['def_channel_id']).send(help_str)
 
 
     async def create_help_general(self):

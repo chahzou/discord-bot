@@ -21,7 +21,7 @@ __all__ = [ basename(f)[:-3] for f in modules if isfile(f) and not f.endswith('_
 # Always "await" coroutines of built-in functions (also works in statements)
 # Boolean: capital (True)
 # Using variables in code: getattr(this_module, "%s" % variable) - NEVER DIRECTLY USE USER-INPUT!
-# Permissions: message.author.server_permissions.[ex: manage_messages]
+# Permissions: message.author.guild_permissions.[ex: manage_messages]
 
 # ??? If an argument list is passed with only one string, it is no longer a list and just a string.
 #   If the nth item of the argument list is read out it is therefor a single letter, not the whole string
@@ -32,7 +32,7 @@ __all__ = [ basename(f)[:-3] for f in modules if isfile(f) and not f.endswith('_
 class Bot(discord.Client):
 
     async def on_ready(self):
-
+        
         self.cfg = config
         self.util = Utility(self)
 
@@ -106,6 +106,7 @@ class Bot(discord.Client):
                     await self.util.send_error_message(message.channel, "No module for `" + args[0] + "` is configured.")
             
             # Actions for non-command messages:
+            # TODO: fix
             for module in self.arg_mod_assoc.values():
                 try:
                     await getattr(module, 'on_message')(message)

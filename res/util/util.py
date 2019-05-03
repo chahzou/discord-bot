@@ -14,16 +14,12 @@ class Utility:
     
     # Send info message
     async def info_message(self, channel, content):
-        await self.bot.send_message(
-            channel,
-            "Info: " + content
-        )
+        await channel.send("Info: " + content)
 
 
     # Sends an error message
     async def send_error_message(self, channel, content):
-        await self.bot.send_message(
-            channel, 
+        await channel.send(
             "Error: " + content + "\n" + 
                 "Type `!help [command]` to list all possible commands or to get information on a particular command."
         )
@@ -41,8 +37,8 @@ class Utility:
         return ''
 
 
-    async def get_role_by_name(self, server, role_name):
-        for role in server.roles:
+    async def get_role_by_name(self, guild, role_name):
+        for role in guild.roles:
             if role.name == role_name:
                 return role
 
@@ -64,7 +60,7 @@ class Utility:
     async def delete_message_delayed(self, message, delay):
         msg_temp = message
         await asyncio.sleep(delay)
-        await self.bot.delete_message(message)
+        await message.delete()
         await self.print("Deleted a message in channel " + msg_temp.channel.name)
         await self.dump_messages([msg_temp])
 
@@ -85,7 +81,7 @@ class Utility:
     
 
     # TODO
-    async def get_latest_message_by_user(self, server, user):
+    async def get_latest_message_by_user(self, guild, user):
 
         pass
 
@@ -122,4 +118,4 @@ class Utility:
         else:
             out += "Command `!" + cmd + "` does not exist."
 
-        await self.bot.send_message(channel, out)'''
+        await channel.send(out)'''
