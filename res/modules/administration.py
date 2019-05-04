@@ -1,4 +1,6 @@
 from ..module import Module
+from datetime import datetime, timedelta
+import discord
 
 
 class Administration(Module):
@@ -59,9 +61,9 @@ class Administration(Module):
             await self.bot.run_module('help', [self.cmd_arg])
 
 
-    # TODO: update prune
     async def return_help(self, args=None):
         return ("- `delete last [n (max=200)] [optional: user-id] [optional: 'silent']`: Deletes the last n messages in a channel (optionally by a user) if the author has the required rights. (The user-id can be copied by right-clicking on a user when in dev mode.)"
+            "- `prune [type (message/login)] [days] [optional: 'proceed']`: Displays or kicks users who have been inactive (depending on type) for a specified amount of time."
             "")
 
 
@@ -211,7 +213,6 @@ class Administration(Module):
 
 
     # Prune members who did not write a message in a specified number of days
-    # TODO: Implement
     async def prune(self, args, message):
 
         # Check user rights: Kick Members
@@ -221,7 +222,6 @@ class Administration(Module):
             check_only = True
             days_inactive = None
             
-
             # Set arguments
             if args:
 
@@ -233,60 +233,79 @@ class Administration(Module):
                     if args[0] == 'login':
                         prune_type = 'login'
                         if len(args) >= 2:
-                            if isinstance(args, list) and args[1]:
-                                days_inactive = args[1]
+                            if args[1]:
+                                days_inactive = int(args[1])
                                 if len(args) >= 3:
-                                    if isinstance(args, list) and args[2]:
+                                    if args[2]:
                                         if args[2] == 'proceed':
                                             check_only = False
 
                     elif args[0] == 'message':
                         prune_type = 'message'
                         if len(args) >= 2:
-                            if isinstance(args, list) and args[1]:
-                                days_inactive = args[1]
+                            if args[1]:
+                                days_inactive = int(args[1])
                                 if len(args) >= 3:
-                                    if isinstance(args, list) and args[2]:
+                                    if args[2]:
                                         if args[2] == 'proceed':
                                             check_only = False
 
             else:
                 await self.bot.run_module('help', [self.cmd_arg])
-            
-            print(prune_type, check_only, days_inactive)
 
-            if prune_type == 'login':
-                
+            # Prune
+            if days_inactive:
+
+                if prune_type == 'login':
+                    
                     # Log user count to prune
-                if check_only:
-                    await message.guild.estimate_pruned_members(days_inactive)
+                    if check_only:
+                        await message.guild.estimate_pruned_members(days=days_inactive)
 
                     # Kick users
-                elif check_only is False:
-                    await message.guild.prune_members(days_inactive)
+                    elif check_only is False:
+                        await message.guild.prune_members(days=days_inactive)
 
-            '''
-            elif prune_type == 'message':
+                
+                elif prune_type == 'message':
 
-                # Check inactive days for all users
-                if days_inactive:
+                    # Check inactive days for all users
+                    if days_inactive:
 
-                    # Get log until latest message is found for each user
-                    all_members_checked = False
+                        active_members = []
+                        now = datetime.now()
+                        earliest_date = now - timedelta(days=days_inactive)
+                        
+                        # Get active members
+                        for channel in message.guild.channels:
+                            if type(channel) is discord.channel.TextChannel:
+                                async for m in channel.history(limit=None, after=earliest_date):
+                                    if not m.author in active_members:
+                                        active_members.append(m.author)
 
-                    for member in message.guild.members:
-                        pass
+                        # Log inactive and active users
+                        if check_only:
 
-                    if check_only:
-                        # Log users
+                            print("Inactive members:")
+                            for member in message.guild.members:
+                                if not member in active_members:
+                                    print(" " + member.name)
 
-                    else:
-                            # Kick users
-                        pass
-               '''
+                            print("Active members:")
+                            for member in active_members:
+                                print(" " + member.name)
 
+                        # Kick inactive users
+                        elif check_only is False:
+                            for member in message.guild.members:
+                                if not member in active_members:
+                                    await member.kick(reason="Inactive for " + str(days_inactive) + " days.")
+                                    print("Kicked " + member.name)
+                        
+            else:
+                await message.channel.send("No days of inactivity specified.")
         else:
-            await self.bot.util.send(message.channel, "No permission to kick members.")
+            await message.channel.send("No permission to kick members.")
 
 
     # Deletes all messages within a channel
