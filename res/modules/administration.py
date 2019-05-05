@@ -21,7 +21,7 @@ class Administration(Module):
 
     leave_msg_toggle = True
     leave_msg_required_role = 'reg'
-    leave_msg = " left the guild."    # Preceded by the user who left the guild.
+    leave_msg = " left the guild."    # Preceeded by the user who left the guild.
 
 
     async def on_ready(self):
@@ -336,9 +336,9 @@ class Administration(Module):
                 # role = await self.bot.util.get_role_by_name(member.guild, self.leave_msg_required_role)
                 for role in member.roles:
                     if role.name == self.leave_msg_required_role:
-                        await self.bot.send(def_channel, member.mention + self.leave_msg)
+                        await def_channel.send(member.mention + self.leave_msg)
                         await self.bot.util.print(member.name + " left the guild " + member.guild.name + ".")
             else:
-                await self.bot.send(def_channel, member.mention + self.leave_msg)
+                await def_channel.send(member.mention + self.leave_msg)
                 await self.bot.util.print(member.name + " left the guild " + member.guild.name + ".")
     
