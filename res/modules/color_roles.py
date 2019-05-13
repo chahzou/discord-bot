@@ -7,6 +7,7 @@ class ColorRoles(Module):
 
     cmd_arg = 'color'
     regex_hex = r"#[\dABCDEFabcdef]{6}"     # Allows only a hashtag and 6 following hexadecimals
+    regex_hex_alt = r"[\dABCDEFabcdef]{6}"     # Allows only a hashtag and 6 following hexadecimals
 
 
     async def run(self, args=None, message=None):
@@ -44,9 +45,11 @@ class ColorRoles(Module):
         if isinstance(colour_arg, str):
             if re.match(self.regex_hex, colour_arg):     # Check if given argument is hex code, otherwise send help message
                 colour = discord.Colour(int(colour_arg[1:], 16))
-                if colour.value == 0:
-                    await message.channel.send("Note: #000000 is Discord's default color, which varies depending on theme.")
                 colour_hex_name = colour_arg
+
+            elif re.match(self.regex_hex_alt, colour_arg):     # Check if given argument is hex code, otherwise send help message
+                colour = discord.Colour(int(colour_arg, 16))
+                colour_hex_name = "#" + colour_arg
 
             else:
                 await message.channel.send("Argument isn't a hexadecimal code.")
@@ -67,6 +70,9 @@ class ColorRoles(Module):
 
 
         if not assigned:
+            if colour.value == 0:
+                await message.channel.send("Note: #000000 is Discord's default color, which varies depending on theme.")
+
             for role in message.guild.roles:           # Check if colour-role already exists
                 if role.name == colour_hex_name:
                     role_to_assign = role
