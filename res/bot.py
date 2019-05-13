@@ -1,4 +1,4 @@
-import sys, re, discord, asyncio
+import sys, re, discord, asyncio, traceback
 
 from .util.util import Utility
 from .config import config
@@ -21,7 +21,7 @@ __all__ = [ basename(f)[:-3] for f in modules if isfile(f) and not f.endswith('_
 # Always "await" coroutines of built-in functions (also works in statements)
 # Boolean: capital (True)
 # Using variables in code: getattr(this_module, "%s" % variable) - NEVER DIRECTLY USE USER-INPUT!
-# Permissions: message.author.server_permissions.[ex: manage_messages]
+# Permissions: message.author.guild_permissions.[ex: manage_messages]
 
 # ??? If an argument list is passed with only one string, it is no longer a list and just a string.
 #   If the nth item of the argument list is read out it is therefor a single letter, not the whole string
@@ -32,7 +32,7 @@ __all__ = [ basename(f)[:-3] for f in modules if isfile(f) and not f.endswith('_
 class Bot(discord.Client):
 
     async def on_ready(self):
-
+        
         self.cfg = config
         self.util = Utility(self)
 
@@ -45,7 +45,6 @@ class Bot(discord.Client):
             try:
                 await getattr(module, 'on_ready')()
             except:
-                # print(module.cmd_arg + ' has no method on_ready.')
                 pass
 
 
@@ -76,71 +75,64 @@ class Bot(discord.Client):
         print("Initialized " + str(count) + " modules.")
 
 
+    # Runs on_member_remove method in all modules
+    async def on_member_remove(self, member):
+        for module in self.arg_mod_assoc.values():
+            try:
+                await getattr(module, 'on_member_remove')(member)
+            except:
+                pass
+
+
     # Runs "run" method in specified module
     async def on_message(self, message):
 
         if len(message.content) <= self.cfg.other['max_msg_len']:
 
-
+            # Actions for command messages:
             if await self.util.is_command(message.content):
                 
-                # Actions for command messages:
-
                 executed = False
-
                 cmd = message.content[len(self.cfg.general['cmd_op']):]     # Remove operator
                 args = cmd.split(' ', self.cfg.other['max_args'])           # Split command into argument list
                 
                 # Call module specified by first argument
                 if args[0] in self.arg_mod_assoc.keys():                    # If config contains module
-                    try:
-                        await self.run_module(args[0], args[1:], message)
-                    except:
-                        print('Unexpected Module Error.')
+                    await self.run_module(args[0], args[1:], message)
                     executed = True
 
                 # Send error message if command is not in cmdList
                 if not executed or not args[0]:
-                    await self.util.send_error_message(message.channel, "No module for \'" + args[0] + "\' is configured.")
-
-
+                    await self.util.send_error_message(message.channel, "No module for `" + args[0] + "` is configured.")
+            
             # Actions for non-command messages:
-
-            # Auto-delete messages in specified channels
-            if message.channel.id in self.cfg.other['auto_delete_msgs_channel_ids']:
-                await self.util.delete_message_delayed(message)
+            # TODO: fix
+            for module in self.arg_mod_assoc.values():
+                try:
+                    await getattr(module, 'on_message')(message)
+                except:
+                    pass
 
 
     # Call "run" function in specified module and pass message and args if available
     async def run_module(self, mod_arg, args=None, message=None):
 
-        # print(mod_arg + " " + str(args))
-            if isinstance(mod_arg, str) and mod_arg in self.arg_mod_assoc.keys():
+        if isinstance(mod_arg, str) and mod_arg in self.arg_mod_assoc.keys():
+            try:
                 if args:
                     if message:
-                        try:
-                            return await getattr(self.arg_mod_assoc[mod_arg], 'run')(args, message)
-                        except Exception as e:
-                            self.util.print("Exception when running module: " + self.arg_mod_assoc[mod_arg])
-                            print(e)
+                        return await getattr(self.arg_mod_assoc[mod_arg], 'run')(args, message)
                     else:
-                        try:
-                            return await getattr(self.arg_mod_assoc[mod_arg], 'run')(args)
-                        except Exception as e:
-                            self.util.print("Exception when running module: " + self.arg_mod_assoc[mod_arg])
-                            print(e)
+                        return await getattr(self.arg_mod_assoc[mod_arg], 'run')(args)
                 elif message:
-                    try:
-                        return await getattr(self.arg_mod_assoc[mod_arg], 'run')(None, message)
-                    except Exception as e:
-                        self.util.print("Exception when running module: " + self.arg_mod_assoc[mod_arg])
-                        print(e)
+                    return await getattr(self.arg_mod_assoc[mod_arg], 'run')(None, message)
                 else:
-                    try:
-                        return await getattr(self.arg_mod_assoc[mod_arg], 'run')()
-                    except Exception as e:
-                        self.util.print("Exception when running module: " + self.arg_mod_assoc[mod_arg])
-                        print(e)
+                    return await getattr(self.arg_mod_assoc[mod_arg], 'run')()
+            except:
+                await self.util.print("Exception when running module: " + str(self.arg_mod_assoc[mod_arg]))
+                if message:
+                    print("Input: " + message.content)
+                traceback.print_exc()
     
 
     # Call "return_help" function in specified module and pass args if available
