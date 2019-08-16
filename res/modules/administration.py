@@ -53,7 +53,7 @@ class Administration(Module):
                     else:
                         await getattr(self, arg_fct_assoc[args[0]])(None, message)
                 else:
-                    await self.bot.send(message.channel, "Command `" + args[0] + "` isn't available.")
+                    await message.channel.send("Command `" + args[0] + "` isn't available.")
                     await self.bot.run_module('help', [self.cmd_arg], message)
             else:
                 await self.bot.run_module('help', [self.cmd_arg], message)
@@ -115,7 +115,7 @@ class Administration(Module):
             if args[0] in arg_fct_assoc.keys():    # If command is registered
                 await getattr(self, arg_fct_assoc[args[0]])(args[1:], message)
             else:
-                await self.bot.send(message.channel, "Command `" + args[0] + "` isn't available.")
+                await message.channel.send("Command `" + args[0] + "` isn't available.")
                 await self.bot.run_module('help', [self.cmd_arg], message)
         else:
             await self.bot.run_module('help', [self.cmd_arg])
