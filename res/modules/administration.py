@@ -299,8 +299,8 @@ class Administration(Module):
         else:
             await self.bot.run_module('help', [self.cmd_arg])
 
-        # Check inactive days for all users
         if days_inactive:
+            # Check inactive days for all users
 
             active_members = []
             inactive_members = []
@@ -314,10 +314,11 @@ class Administration(Module):
                         if not m.author in active_members:
                             active_members.append(m.author)
             
-            # Get inactive members
+            # Subtract active members from all members and exclude those registrated within the timeframe
             for member in message.guild.members:
                 if not member in active_members:
-                    inactive_members.append(member)
+                    if member.joined_at < earliest_date:
+                        inactive_members.append(member)
 
             if inactive_members:
 
