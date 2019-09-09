@@ -1,4 +1,4 @@
-import pip, time, asyncio
+import pip, time, asyncio, datetime
 from res.bot import Bot
 from res.config import _access
 
@@ -22,5 +22,6 @@ while True:
         client.close()
 
     time.sleep(5)
-    print("Attempting to restart.")
+    now = datetime.datetime.now()
+    print('[' + str(now.day) + '. ' + f"{now:%H}" + ':' + f"{now:%M}" + '] Attempting to restart.')
 

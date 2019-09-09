@@ -72,7 +72,7 @@ class Bot(discord.Client):
                 self.arg_mod_assoc[mod_inst.cmd_arg] = mod_inst
                 count += 1
 
-        print("Initialized " + str(count) + " modules.")
+        await self.util.print("Initialized " + str(count) + " modules.")
 
 
     # Runs on_member_remove method in all modules
