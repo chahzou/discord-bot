@@ -18,7 +18,7 @@ while True:
         client.run(_access.token)
         
     except Exception as e:
-        print("Error", e)
+        print("Error", type(e).__name__)
         client.close()
 
     time.sleep(5)
