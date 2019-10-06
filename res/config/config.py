@@ -2,7 +2,11 @@
 general = {
     'cmd_op': '!',
     'name': "",
-    'def_channel_id': '',
+    'channels': {
+        'default': 0,
+        'welcome': 0,
+        'leave': 0,
+    }
 }
 
 

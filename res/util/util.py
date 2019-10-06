@@ -43,8 +43,8 @@ class Utility:
                 return role
 
 
-    async def get_default_channel(self):
-        return self.bot.get_channel(self.bot.cfg.general['def_channel_id'])
+    async def get_channel(self, name):
+        return self.bot.get_channel(self.bot.cfg.general['channels'][name])
 
 
     async def is_number(self, str):

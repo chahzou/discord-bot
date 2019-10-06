@@ -38,7 +38,7 @@ class Bot(discord.Client):
 
         await self.load_modules()
 
-        print('Ready! (Logged in as {0}'.format(self.user) + ")")
+        await self.util.print('Ready! (Logged in as {0}'.format(self.user) + ")")
 
         # Run on_ready method in all modules
         for module in self.arg_mod_assoc.values():
@@ -72,7 +72,7 @@ class Bot(discord.Client):
                 self.arg_mod_assoc[mod_inst.cmd_arg] = mod_inst
                 count += 1
 
-        print("Initialized " + str(count) + " modules.")
+        await self.util.print("Initialized " + str(count) + " modules.")
 
 
     # Runs on_member_remove method in all modules
