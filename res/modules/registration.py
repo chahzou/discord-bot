@@ -74,9 +74,9 @@ class Registration(Module):
 
                                     # Assemble and send welcome message
                                     if set(self.roles).issubset([role.name for role in user.roles]):
-                                        def_channel = await self.bot.util.get_default_channel()
+                                        welcome_channel = await self.bot.util.get_channel('welcome')
                                         msg = self.welcome_msg + user.mention + ". " + self.about_msg
-                                        await def_channel.send(msg)
+                                        await welcome_channel.send(msg)
 
                                 except Exception as e:
                                     print("Couldn't complete registration. Check the permissions of the bot and registration roles: ")

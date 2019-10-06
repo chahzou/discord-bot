@@ -11,13 +11,13 @@ class Administration(Module):
     ready_msg = "Now online."
     
     # Channels to clear messages (unless protected) when the bot starts
-    auto_clear_channel_ids = [497005261714620418]
-    auto_clear_protected_msg_ids = [573806480113795072]
+    auto_clear_channel_ids = [497747060880048149, 497005261714620418]
+    auto_clear_protected_msg_ids = [498792207562571787]
 
     # Channels to auto delete messages delayed (unless protected)
-    auto_delete_msgs_channel_ids = [497005261714620418]
+    auto_delete_msgs_channel_ids = [497747060880048149, 497005261714620418]
     auto_delete_delay_s = 10
-    auto_delete_protected_msg_ids = [573806480113795072]
+    auto_delete_protected_msg_ids = [498792207562571787]
 
     leave_msg_toggle = True
     leave_msg_required_role = 'reg'
@@ -83,7 +83,7 @@ class Administration(Module):
     # Send ready message and delete last ready message
     async def send_ready_message(self):
 
-        def_channel = await self.bot.util.get_default_channel()
+        def_channel = await self.bot.util.get_channel('default')
         
         if self.ready_msg_toggle:
             def is_ready_msg(m):
@@ -371,16 +371,16 @@ class Administration(Module):
     async def send_leave_message(self, member):
         if self.leave_msg_toggle:
 
-            def_channel = await self.bot.util.get_default_channel()
+            leave_channel = await self.bot.util.get_channel('leave')
 
             # Check required role
             if self.leave_msg_required_role:
                 # role = await self.bot.util.get_role_by_name(member.guild, self.leave_msg_required_role)
                 for role in member.roles:
                     if role.name == self.leave_msg_required_role:
-                        await def_channel.send(member.mention + self.leave_msg)
+                        await leave_channel.send(member.mention + self.leave_msg)
                         await self.bot.util.print(member.name + " left the guild " + member.guild.name + ".")
             else:
-                await def_channel.send(member.mention + self.leave_msg)
+                await leave_channel.send(member.mention + self.leave_msg)
                 await self.bot.util.print(member.name + " left the guild " + member.guild.name + ".")
     
