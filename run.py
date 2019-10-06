@@ -11,17 +11,28 @@ while True:
 
     asyncio.set_event_loop(asyncio.new_event_loop())
     client = Bot()
-    # loop = asyncio.get_event_loop()
+    loop = asyncio.get_event_loop()
 
     try:
         # loop.run_until_complete(client.run(_access.token))
-        client.run(_access.token)
+        # client.run(_access.token)
+        
+        try:
+            loop.run_until_complete(client.start(_access.token))
+        finally:
+            loop.run_until_complete(client.logout())
+            # cancel all tasks lingering
+            loop.close()
         
     except Exception as e:
-        print("Error", type(e).__name__)
-        client.close()
+        print("Error", e)
+        # client.close()
 
+    now = datetime.datetime.now()
+    print('[' + str(now.day) + '. ' + f"{now:%H}" + ':' + f"{now:%M}" + '] Loop lost.')
+    
     time.sleep(5)
+    
     now = datetime.datetime.now()
     print('[' + str(now.day) + '. ' + f"{now:%H}" + ':' + f"{now:%M}" + '] Attempting to restart.')
 
