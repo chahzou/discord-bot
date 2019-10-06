@@ -383,4 +383,3 @@ class Administration(Module):
             else:
                 await leave_channel.send(member.mention + self.leave_msg)
                 await self.bot.util.print(member.name + " left the guild " + member.guild.name + ".")
-    
