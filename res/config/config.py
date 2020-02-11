@@ -26,7 +26,4 @@ other = {
     'ready_msg': "Now online.",
     'max_msg_len': 10000,
     'max_args': 100,
-    'auto_delete_msgs_channel_ids': [''],
-    'auto_delete_delay_s': 10,
-    'clear_channel_ids': [''],
 }

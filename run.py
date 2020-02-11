@@ -6,6 +6,8 @@ from res.config import _access
 # pip.main(['install', 'discord'])
 
 
+reconnect_timeout = 5
+
 # Run
 while True:
 
@@ -31,8 +33,7 @@ while True:
     now = datetime.datetime.now()
     print('[' + str(now.day) + '. ' + f"{now:%H}" + ':' + f"{now:%M}" + '] Loop lost.')
     
-    time.sleep(5)
+    time.sleep(reconnect_timeout)
     
     now = datetime.datetime.now()
     print('[' + str(now.day) + '. ' + f"{now:%H}" + ':' + f"{now:%M}" + '] Attempting to restart.')
-

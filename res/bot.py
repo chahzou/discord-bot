@@ -143,5 +143,3 @@ class Bot(discord.Client):
                 return await getattr(self.arg_mod_assoc[mod_arg], 'return_help')(args)
             else:
                 return await getattr(self.arg_mod_assoc[mod_arg], 'return_help')()
-
-    

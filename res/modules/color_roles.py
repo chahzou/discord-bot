@@ -119,4 +119,3 @@ class ColorRoles(Module):
 
                 if not used:
                     await role.delete()      # delete the role if it's not used
-    
