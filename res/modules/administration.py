@@ -334,7 +334,7 @@ class Administration(Module):
 
                 # Warn members who would be kicked
                 elif warn:
-                    warn_str = "The following members will be pruned due to inactivity for " + str(days_inactive) + " days: "
+                    warn_str = "The following members will soon be pruned due to inactivity for " + str(days_inactive) + " days: "
                     warn_str += inactive_members[0].mention
                     for member in inactive_members[1:]:
                         warn_str += ", " + member.mention
