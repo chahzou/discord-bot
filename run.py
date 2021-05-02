@@ -1,4 +1,4 @@
-import pip, time, asyncio, datetime
+import pip, time, asyncio, datetime, discord
 from res.bot import Bot
 from res.config import _access
 
@@ -12,7 +12,8 @@ reconnect_timeout = 5
 while True:
 
     asyncio.set_event_loop(asyncio.new_event_loop())
-    client = Bot()
+    intents = discord.Intents.all()
+    client = Bot(intents=intents)
     loop = asyncio.get_event_loop()
 
     try:
