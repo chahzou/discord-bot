@@ -112,10 +112,11 @@ class ColorRoles(Module):
 
                 used = False
 
-                for member in guild.members:               # Iteration of members
-                    for member_role in member.roles:            # Iteration of roles of each member
-                        if member_role == role:
-                            used = True                             # when a member has the role -> role is used
+                if len(guild.members) > 1:
+                    for member in guild.members:               # Iteration of members
+                        for member_role in member.roles:            # Iteration of roles of each member
+                            if member_role == role:
+                                used = True                             # When a member has the role -> role is used
 
-                if not used:
-                    await role.delete()      # delete the role if it's not used
+                    if not used:
+                        await role.delete()      # delete the role if it's not used
