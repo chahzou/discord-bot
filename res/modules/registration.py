@@ -9,7 +9,7 @@ class Registration(Module):
     cmd_arg = 'register'
     
     channel_ids = [497005261714620418]
-    roles = ['reg', 'reg2']
+    roles = ['reg', 'reg disp']
 
     delay = 3
     delay_msg_pre = "Welcome, the registration will finish soon."
