@@ -10,7 +10,7 @@ class Info(Module):
     async def run(self, args=None, message=None):
         if message:
             cmd_op = self.bot.cfg.general['cmd_op']
-            info_msg = ("This is chahzou's discord bot. \nThe code is public: https://github.com/chahzou/discord-bot. " 
+            info_msg = ("This is Kinom's discord bot. \nThe code is public: https://github.com/kinomwi/discord-bot. " 
                 "Use `"+ cmd_op + "help` for info on how to use its features.\n")
             await message.channel.send(info_msg)
 
